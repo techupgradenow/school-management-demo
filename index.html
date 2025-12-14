@@ -400,6 +400,10 @@
                         <i class="fas fa-file-alt"></i>
                         <span>Exams & Grades</span>
                     </li>
+                    <li data-page="admitcard">
+                        <i class="fas fa-id-card"></i>
+                        <span>Admit Card</span>
+                    </li>
                     <li data-page="timetable">
                         <i class="fas fa-calendar-alt"></i>
                         <span>Timetable</span>
@@ -424,7 +428,7 @@
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports & Analytics</span>
                     </li>
-                    <li data-page="users">
+                    <li data-page="users" style="display: none !important;">
                         <i class="fas fa-users-cog"></i>
                         <span>User Management</span>
                     </li>
@@ -1530,6 +1534,10 @@
 
 		function ensureSuperAdminUser() {
 			let users = loadUsersAuth();
+			// Ensure it's an array
+			if (!Array.isArray(users)) {
+				users = [];
+			}
 			const hasSuper = users.some(u => (u.role === 'SuperAdmin') || (u.username && u.username.toLowerCase() === 'superadmin'));
 			if (!hasSuper) {
 				const superUser = {
@@ -1545,28 +1553,47 @@
 				users.unshift(superUser);
 				saveUsersAuth(users);
 			}
+			// Also ensure admin user exists for convenience
+			const hasAdmin = users.some(u => u.username && u.username.toLowerCase() === 'admin');
+			if (!hasAdmin) {
+				const adminUser = {
+					id: 'USR001',
+					name: 'School Admin',
+					username: 'admin',
+					email: 'admin@edumanage.edu',
+					role: 'Admin',
+					status: 'Active',
+					password: 'admin123',
+					lastLogin: '–'
+				};
+				users.push(adminUser);
+				saveUsersAuth(users);
+			}
 		}
+		
+		// Initialize users immediately when script loads
+		ensureSuperAdminUser();
 
 		// ======== ROLE CONFIG FOR RBAC ========
 		const ROLE_CONFIG = {
 			superadmin: {
 				label: 'Super Admin',
-				allowedPages: ['dashboard','students','teachers','attendance','exams','timetable','fees','library','transport','hostel','reports','users','settings'],
+				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','library','transport','hostel','reports','settings'],
 				quickActions: ['addStudent','takeAttendance','scheduleExam','collectFees','sendNotification','generateReport']
 			},
 			admin: {
 				label: 'Admin',
-				allowedPages: ['dashboard','students','teachers','attendance','exams','timetable','fees','library','reports','users','settings'],
+				allowedPages: ['dashboard','students','teachers','attendance','exams','admitcard','timetable','fees','library','reports','settings'],
 				quickActions: ['addStudent','takeAttendance','scheduleExam','collectFees','sendNotification','generateReport']
 			},
 			teacher: {
 				label: 'Teacher',
-				allowedPages: ['dashboard','attendance','exams','timetable','students','reports'],
+				allowedPages: ['dashboard','attendance','exams','admitcard','timetable','students','reports'],
 				quickActions: ['takeAttendance','scheduleExam','sendNotification']
 			},
 			student: {
 				label: 'Student',
-				allowedPages: ['dashboard','timetable','attendance','fees','library','transport','hostel'],
+				allowedPages: ['dashboard','timetable','attendance','fees','library','transport','hostel','admitcard'],
 				quickActions: []
 			},
 			parent: {
@@ -1590,15 +1617,23 @@
 		function applyRoleUI(roleKey, modulesFromUser) {
 			const key = normalizeRole(roleKey);
 			const cfg = ROLE_CONFIG[key] || ROLE_CONFIG.superadmin;
+			// Always merge with role config to ensure new pages are included
+			const rolePages = cfg.allowedPages || [];
 			const allowed = Array.isArray(modulesFromUser) && modulesFromUser.length
-				? modulesFromUser
-				: (cfg.allowedPages || []);
+				? [...new Set([...rolePages, ...modulesFromUser])]
+				: rolePages;
 
 			// Sidebar visibility
 			sidebarMenuItems.forEach(li => {
 				const page = li.dataset.page;
 				if (!page) {
 					// Logout should always be visible
+					return;
+				}
+				// Always hide User Management menu for all users
+				if (page === 'users') {
+					li.style.display = 'none';
+					li.classList.remove('active');
 					return;
 				}
 				if (allowed.includes(page)) {
@@ -1713,8 +1748,9 @@
 					return p && (p.view || p.edit || p.delete);
 				})
 				: [];
+			// Merge role config with permissions to ensure all allowed pages are included
 			const effectiveModules = modulesFromPerms.length
-				? modulesFromPerms
+				? [...new Set([...roleCfg.allowedPages, ...modulesFromPerms])]
 				: (roleCfg.allowedPages || []);
 			applyRoleUI(roleKey, effectiveModules);
             showNotification('Login successful! Welcome to EduManage Pro.', 'success');
@@ -2086,6 +2122,9 @@
         
         // Simulate data loading with a slight delay for better UX
         window.addEventListener('load', function() {
+            // Ensure superadmin user exists on page load
+            ensureSuperAdminUser();
+            
             setTimeout(function() {
                 document.querySelector('.login-container').classList.add('fade-in');
             }, 100);
@@ -2117,9 +2156,22 @@
 					// Apply RBAC to menus and quick actions
 					let modules = [];
 					try {
-						modules = JSON.parse(localStorage.getItem('edu_modules') || '[]');
+						const roleCfg = ROLE_CONFIG[normalizeRole(roleKey)] || ROLE_CONFIG.superadmin;
+						const storedModules = JSON.parse(localStorage.getItem('edu_modules') || '[]');
+						// Merge stored modules with role config to ensure new pages are included
+						if (storedModules.length > 0) {
+							// Combine and deduplicate
+							modules = [...new Set([...roleCfg.allowedPages, ...storedModules])];
+							// Update localStorage with merged modules
+							localStorage.setItem('edu_modules', JSON.stringify(modules));
+						} else {
+							modules = roleCfg.allowedPages || [];
+							localStorage.setItem('edu_modules', JSON.stringify(modules));
+						}
 					} catch(e) {
-						modules = [];
+						const roleCfg = ROLE_CONFIG[normalizeRole(roleKey)] || ROLE_CONFIG.superadmin;
+						modules = roleCfg.allowedPages || [];
+						localStorage.setItem('edu_modules', JSON.stringify(modules));
 					}
 					applyRoleUI(roleKey, modules);
 					const frame = document.getElementById('contentFrame');
@@ -2140,6 +2192,26 @@
 			// Hide any inline pages (legacy content) when using iframe router
 			try {
 				pages.forEach(p => p.classList.remove('active'));
+			} catch(e) {}
+			
+			// Ensure admitcard menu item is visible if in role config
+			try {
+				const roleKey = localStorage.getItem('edu_role') || 'superadmin';
+				const roleCfg = ROLE_CONFIG[normalizeRole(roleKey)] || ROLE_CONFIG.superadmin;
+				if (roleCfg.allowedPages && roleCfg.allowedPages.includes('admitcard')) {
+					const admitCardMenu = document.querySelector('li[data-page="admitcard"]');
+					if (admitCardMenu) {
+						admitCardMenu.style.display = '';
+					}
+				}
+			} catch(e) {}
+			
+			// Always hide User Management menu for all users (Admin, SuperAdmin, etc.)
+			try {
+				const usersMenu = document.querySelector('li[data-page="users"]');
+				if (usersMenu) {
+					usersMenu.style.display = 'none';
+				}
 			} catch(e) {}
         });
     </script>

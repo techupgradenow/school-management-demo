@@ -101,7 +101,10 @@
 		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 		.data-table { width: 100%; border-collapse: collapse; }
-		.data-table thead { background: linear-gradient(135deg, #d97706, #f59e0b); }
+		.data-table thead { 
+			background: linear-gradient(135deg, #f59e0b, #d97706);
+			background-color: #f59e0b;
+		}
 		.data-table th {
 			padding: 16px 20px;
 			text-align: left;
@@ -109,6 +112,7 @@
 			font-size: 13px;
 			color: white;
 			text-transform: uppercase;
+			background: linear-gradient(135deg, #f59e0b, #d97706);
 		}
 		.data-table th:first-child { padding-left: 24px; }
 		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }

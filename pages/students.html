@@ -6,6 +6,7 @@
 	<title>Students</title>
 	<link rel="stylesheet" href="../style.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 	<style>
 		* { box-sizing: border-box; margin: 0; padding: 0; }
 		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
@@ -101,7 +102,10 @@
 		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 		.data-table { width: 100%; border-collapse: collapse; }
-		.data-table thead { background: linear-gradient(135deg, #1e3a5f, #2d4a6f); }
+		.data-table thead { 
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
+			background-color: #3b82f6;
+		}
 		.data-table th {
 			padding: 16px 12px;
 			text-align: left;
@@ -110,6 +114,7 @@
 			color: white;
 			text-transform: uppercase;
 			letter-spacing: 0.5px;
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
 		}
 		.data-table th:first-child { padding-left: 20px; }
 		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
@@ -310,8 +315,162 @@
 		}
 		.edit-hint i { color: #f59e0b; }
 
+		/* Add Student Modal */
+		.student-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.5);
+			backdrop-filter: blur(4px);
+			z-index: 10000;
+			align-items: center;
+			justify-content: center;
+			padding: 20px;
+		}
+		.student-modal.show {
+			display: flex;
+		}
+		.student-modal-content {
+			background: white;
+			border-radius: 16px;
+			width: 90%;
+			max-width: 700px;
+			max-height: 90vh;
+			overflow-y: auto;
+			box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+			animation: modalSlideIn 0.3s ease;
+		}
+		@keyframes modalSlideIn {
+			from { opacity: 0; transform: translateY(-20px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		.modal-header {
+			padding: 24px;
+			border-bottom: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.modal-header h3 {
+			font-size: 20px;
+			font-weight: 700;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.modal-header h3 i {
+			color: #3b82f6;
+		}
+		.modal-close {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: none;
+			background: #f1f5f9;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			color: #64748b;
+		}
+		.modal-close:hover {
+			background: #fef2f2;
+			color: #ef4444;
+		}
+		.modal-body {
+			padding: 24px;
+		}
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 16px;
+			margin-bottom: 16px;
+		}
+		.form-group {
+			margin-bottom: 16px;
+		}
+		.form-group label {
+			display: block;
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			margin-bottom: 8px;
+		}
+		.form-group input,
+		.form-group select {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+			font-family: inherit;
+		}
+		.form-group input:focus,
+		.form-group select:focus {
+			outline: none;
+			border-color: #3b82f6;
+		}
+		.form-group.full-width {
+			grid-column: 1 / -1;
+		}
+		.photo-upload-area {
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.photo-preview {
+			width: 120px;
+			height: 150px;
+			border: 2px dashed #e2e8f0;
+			border-radius: 8px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+			background: #f8fafc;
+			position: relative;
+		}
+		.photo-preview img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+		.photo-preview .placeholder {
+			text-align: center;
+			color: #94a3b8;
+		}
+		.photo-preview .placeholder i {
+			font-size: 48px;
+			margin-bottom: 8px;
+		}
+		.modal-footer {
+			padding: 20px 24px;
+			border-top: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+		.btn-secondary {
+			background: white;
+			border: 2px solid #e2e8f0;
+			color: #64748b;
+		}
+		.btn-secondary:hover {
+			background: #f8fafc;
+			border-color: #cbd5e1;
+		}
+
+		@media (max-width: 768px) {
+			.form-row {
+				grid-template-columns: 1fr;
+			}
+			.stats-row { grid-template-columns: 1fr; }
+			.search-box { width: 100%; }
+		}
 		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
-		@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; } .search-box { width: 100%; } }
 	</style>
 </head>
 <body>
@@ -323,6 +482,7 @@
 		</div>
 			<div class="header-actions">
 				<input type="file" id="importFile" accept=".csv" style="display: none;">
+				<button class="btn btn-primary" id="addStudentBtn"><i class="fas fa-plus"></i> Add Student</button>
 				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
 				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
 			</div>
@@ -405,21 +565,39 @@
 	<button class="fab-btn" id="fabAddBtn" title="Add New Student"><i class="fas fa-plus"></i></button>
 
 	<script>
+		$(document).ready(function() {
 		function notify(msg, type = 'success') {
-			document.querySelectorAll('.toast').forEach(t => t.remove());
-			const toast = document.createElement('div');
+			$('.toast').remove();
 			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
-			toast.className = 'toast';
-			toast.style.cssText = `position:fixed;bottom:30px;right:30px;padding:14px 20px;background:${bg};color:white;border-radius:10px;font-weight:600;z-index:10000;display:flex;align-items:center;gap:8px;animation:slideIn 0.3s ease;font-family:'Segoe UI',sans-serif;font-size:14px;`;
-			toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
-			document.body.appendChild(toast);
-			if (!document.getElementById('toastStyle')) {
-				const s = document.createElement('style');
-				s.id = 'toastStyle';
-				s.textContent = `@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}`;
-				document.head.appendChild(s);
+			const icon = type === 'success' ? 'check-circle' : 'info-circle';
+			const toast = $('<div>').addClass('toast').css({
+				position: 'fixed',
+				bottom: '30px',
+				right: '30px',
+				padding: '14px 20px',
+				background: bg,
+				color: 'white',
+				borderRadius: '10px',
+				fontWeight: '600',
+				zIndex: '10000',
+				display: 'flex',
+				alignItems: 'center',
+				gap: '8px',
+				animation: 'slideIn 0.3s ease',
+				fontFamily: "'Segoe UI', sans-serif",
+				fontSize: '14px'
+			}).html(`<i class="fas fa-${icon}"></i> ${msg}`);
+			
+			$('body').append(toast);
+			
+			if ($('#toastStyle').length === 0) {
+				$('<style>').attr('id', 'toastStyle').text('@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}').appendTo('head');
 			}
-			setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+			
+			setTimeout(() => {
+				toast.css('opacity', '0');
+				setTimeout(() => toast.remove(), 300);
+			}, 2500);
 		}
 
 		const STORAGE_KEY = 'edu_students';
@@ -428,21 +606,81 @@
 		let selected = new Set();
 		let currentUploadIdx = -1;
 
+		function generateDemoStudents() {
+			const firstNames = {
+				Male: ['Rahul', 'Amit', 'Vikram', 'Karan', 'Arjun', 'Rohan', 'Siddharth', 'Aryan', 'Aditya', 'Pranav', 'Krishna', 'Dhruv', 'Vishal', 'Raj', 'Mohit', 'Ankit', 'Nikhil', 'Yash', 'Sahil', 'Dev', 'Harsh', 'Manish', 'Suraj', 'Abhishek', 'Vivek', 'Akash', 'Ravi', 'Gaurav', 'Rishabh', 'Kunal', 'Mayank', 'Shubham', 'Jay', 'Ritesh', 'Nitin'],
+				Female: ['Priya', 'Ananya', 'Sneha', 'Neha', 'Pooja', 'Kavya', 'Isha', 'Anjali', 'Divya', 'Meera', 'Riya', 'Sakshi', 'Shreya', 'Aanya', 'Kriti', 'Avni', 'Tanvi', 'Aditi', 'Ishita', 'Disha', 'Saanvi', 'Aishwarya', 'Anushka', 'Vidya', 'Radha', 'Kiran', 'Sarika', 'Pallavi', 'Megha', 'Swati', 'Urvashi', 'Nikita', 'Jyoti', 'Manisha', 'Rashmi']
+			};
+			const lastNames = ['Sharma', 'Patel', 'Kumar', 'Singh', 'Gupta', 'Reddy', 'Nair', 'Iyer', 'Malhotra', 'Verma', 'Das', 'Mehta', 'Chopra', 'Bansal', 'Agarwal', 'Jain', 'Shah', 'Rao', 'Pandey', 'Joshi', 'Desai', 'Mishra', 'Shukla', 'Yadav', 'Thakur', 'Chauhan', 'Rawat', 'Bhatt', 'Dubey', 'Tiwari'];
+			const sections = ['A', 'B', 'C'];
+			const addresses = ['Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Surat', 'Kanpur', 'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna', 'Vadodara', 'Ghaziabad'];
+			
+			const students = [];
+			const currentYear = new Date().getFullYear();
+			
+			for (let i = 1; i <= 100; i++) {
+				const gender = i % 2 === 0 ? 'Female' : 'Male';
+				const firstName = firstNames[gender][Math.floor(Math.random() * firstNames[gender].length)];
+				const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+				const name = `${firstName} ${lastName}`;
+				const classNum = Math.floor(Math.random() * 12) + 1;
+				const section = classNum >= 11 ? 'Science' : sections[Math.floor(Math.random() * sections.length)];
+				const parentFirst = gender === 'Male' ? firstNames.Male[Math.floor(Math.random() * firstNames.Male.length)] : firstNames.Female[Math.floor(Math.random() * firstNames.Female.length)];
+				const parentLast = lastName;
+				const parent = `${parentFirst} ${parentLast}`;
+				const address = `${addresses[Math.floor(Math.random() * addresses.length)]}, India`;
+				
+				// Generate DOB (ages between 5-17 years)
+				const age = 5 + Math.floor(Math.random() * 13);
+				const birthYear = currentYear - age;
+				const birthMonth = Math.floor(Math.random() * 12) + 1;
+				const birthDay = Math.floor(Math.random() * 28) + 1;
+				const dob = `${String(birthDay).padStart(2, '0')}/${String(birthMonth).padStart(2, '0')}/${birthYear}`;
+				
+				const status = Math.random() > 0.1 ? 'Active' : 'Inactive';
+				const id = `STU-${currentYear}-${String(i).padStart(3, '0')}`;
+				
+				students.push({
+					id: id,
+					name: name,
+					gender: gender,
+					class: String(classNum),
+					section: section,
+					parent: parent,
+					address: address,
+					dob: dob,
+					status: status,
+					photo: ''
+				});
+			}
+			
+			return students;
+		}
+
 		function loadStudents() {
 			try {
 				const data = localStorage.getItem(STORAGE_KEY);
-				if (data) students = JSON.parse(data);
-				else {
-					students = [
-						{ id: '#0025', name: 'Anitha', gender: 'Female', class: '12', section: 'B', parent: 'Hari', address: 'West Street', dob: '07/06/2008', status: 'Active', photo: '' },
-						{ id: '#0024', name: 'Ami', gender: 'Female', class: '11', section: 'A', parent: 'Nami', address: 'East Town', dob: '06/06/2009', status: 'Active', photo: '' },
-						{ id: 'STU-2023-001', name: 'Rahul Sharma', gender: 'Male', class: '10', section: 'A', parent: 'Amit Sharma', address: 'Delhi, India', dob: '15/08/2008', status: 'Active', photo: '' },
-						{ id: 'STU-2023-002', name: 'Priya Patel', gender: 'Female', class: '9', section: 'B', parent: 'Sunita Patel', address: 'Mumbai, India', dob: '22/03/2009', status: 'Active', photo: '' },
-						{ id: 'STU-2023-003', name: 'Amit Kumar', gender: 'Male', class: '11', section: 'Science', parent: 'Rajesh Kumar', address: 'Bangalore, India', dob: '10/12/2007', status: 'Active', photo: '' }
-					];
+				if (data && data !== '[]' && data.trim() !== '' && data !== 'null') {
+					const parsed = JSON.parse(data);
+					// If students array is valid and has enough records, use it
+					if (Array.isArray(parsed) && parsed.length >= 10) {
+						students = parsed;
+					} else {
+						// Not enough data, generate demo students
+						students = generateDemoStudents();
+						saveStudents();
+					}
+				} else {
+					// No data or empty, generate demo students
+					students = generateDemoStudents();
 					saveStudents();
 				}
-			} catch (e) { students = []; }
+			} catch (e) { 
+				// Error parsing, generate fresh data
+				console.log('Error loading students, generating demo data:', e);
+				students = generateDemoStudents();
+				saveStudents();
+			}
 		}
 
 		function saveStudents() { localStorage.setItem(STORAGE_KEY, JSON.stringify(students)); }
@@ -452,17 +690,17 @@
 			const active = students.filter(s => s.status === 'Active').length;
 			const male = students.filter(s => s.gender === 'Male').length;
 			const female = students.filter(s => s.gender === 'Female').length;
-			document.getElementById('statsRow').innerHTML = `
+			$('#statsRow').html(`
 				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">Total Students</div></div></div>
 				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div><div class="stat-value">${active}</div><div class="stat-label">Active Students</div></div></div>
 				<div class="stat-card"><div class="stat-icon purple"><i class="fas fa-male"></i></div><div><div class="stat-value">${male}</div><div class="stat-label">Male Students</div></div></div>
 				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-female"></i></div><div><div class="stat-value">${female}</div><div class="stat-label">Female Students</div></div></div>
-			`;
+			`);
 		}
 
 		function renderTable() {
-			const search = document.getElementById('searchInput').value.toLowerCase();
-			const classFilter = document.getElementById('classFilter').value;
+			const search = $('#searchInput').val().toLowerCase();
+			const classFilter = $('#classFilter').val();
 			let filtered = students.filter(s => {
 				const matchSearch = !search || [s.id, s.name, s.parent, s.address].join(' ').toLowerCase().includes(search);
 				const matchClass = !classFilter || s.class === classFilter;
@@ -474,12 +712,11 @@
 			if (page > totalPages) page = totalPages;
 			const start = (page - 1) * pageSize;
 			const pageData = filtered.slice(start, start + pageSize);
-			const tbody = document.getElementById('tableBody');
 
 			if (pageData.length === 0) {
-				tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><i class="fas fa-user-graduate"></i><h3>No Students Found</h3><p>Add students or adjust your search</p></div></td></tr>`;
+				$('#tableBody').html(`<tr><td colspan="12"><div class="empty-state"><i class="fas fa-user-graduate"></i><h3>No Students Found</h3><p>Add students or adjust your search</p></div></td></tr>`);
 			} else {
-				tbody.innerHTML = pageData.map((s, idx) => {
+				$('#tableBody').html(pageData.map((s, idx) => {
 					const globalIdx = students.indexOf(s);
 					const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 					const genderClass = s.gender === 'Female' ? 'female' : 'male';
@@ -514,46 +751,48 @@
 					</td>
 						</tr>
 					`;
-				}).join('');
+				}).join(''));
 			}
 
-			document.getElementById('pageInfo').textContent = `Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} students`;
-			document.getElementById('pageNum').textContent = page;
-			document.getElementById('prevBtn').disabled = page <= 1;
-			document.getElementById('nextBtn').disabled = page >= totalPages;
-			document.getElementById('bulkDeleteBtn').disabled = selected.size === 0;
-			document.getElementById('selectAll').checked = pageData.length > 0 && pageData.every(s => selected.has(s.id));
+			$('#pageInfo').text(`Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} students`);
+			$('#pageNum').text(page);
+			$('#prevBtn').prop('disabled', page <= 1);
+			$('#nextBtn').prop('disabled', page >= totalPages);
+			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
+			$('#selectAll').prop('checked', pageData.length > 0 && pageData.every(s => selected.has(s.id)));
 		}
 
 		// Inline Editing
-		document.getElementById('tableBody').addEventListener('click', function(e) {
-			const cell = e.target.closest('.editable-cell');
-			if (!cell || cell.classList.contains('editing')) return;
+		$(document).on('click', '#tableBody .editable-cell', function(e) {
+			const $cell = $(this);
+			if ($cell.hasClass('editing')) return;
 
-			const idx = parseInt(cell.dataset.idx);
-			const field = cell.dataset.field;
-			const type = cell.dataset.type || 'text';
+			const idx = parseInt($cell.data('idx'));
+			const field = $cell.data('field');
+			const type = $cell.data('type') || 'text';
 			const currentValue = students[idx][field] || '';
 
-			cell.classList.add('editing');
+			$cell.addClass('editing');
 
 			if (type === 'select' && field === 'gender') {
-				cell.innerHTML = `<select><option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Female</option></select>`;
+				$cell.html(`<select><option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Female</option></select>`);
 			} else if (type === 'select' && field === 'section') {
-				cell.innerHTML = `<select><option value="A" ${currentValue === 'A' ? 'selected' : ''}>A</option><option value="B" ${currentValue === 'B' ? 'selected' : ''}>B</option><option value="C" ${currentValue === 'C' ? 'selected' : ''}>C</option><option value="Science" ${currentValue === 'Science' ? 'selected' : ''}>Science</option></select>`;
+				$cell.html(`<select><option value="A" ${currentValue === 'A' ? 'selected' : ''}>A</option><option value="B" ${currentValue === 'B' ? 'selected' : ''}>B</option><option value="C" ${currentValue === 'C' ? 'selected' : ''}>C</option><option value="Science" ${currentValue === 'Science' ? 'selected' : ''}>Science</option></select>`);
 			} else if (type === 'date') {
 				const dateVal = currentValue && currentValue !== '-' ? formatDateForInput(currentValue) : '';
-				cell.innerHTML = `<input type="date" value="${dateVal}">`;
+				$cell.html(`<input type="date" value="${dateVal}">`);
 			} else {
-				cell.innerHTML = `<input type="text" value="${currentValue === '-' ? '' : currentValue}">`;
+				$cell.html(`<input type="text" value="${currentValue === '-' ? '' : currentValue}">`);
 			}
 
-			const input = cell.querySelector('input, select');
-			input.focus();
-			if (input.select) input.select();
+			const $input = $cell.find('input, select');
+			$input.focus();
+			if ($input.is('input[type="text"]')) {
+				$input.select();
+			}
 
 			function saveEdit() {
-				let newValue = input.value.trim();
+				let newValue = $input.val().trim();
 				if (type === 'date' && newValue) {
 					newValue = formatDateForDisplay(newValue);
 				}
@@ -564,21 +803,24 @@
 				notify('Saved!', 'success');
 			}
 
-			input.addEventListener('blur', saveEdit);
-			input.addEventListener('keydown', function(e) {
-				if (e.key === 'Enter') { input.blur(); }
-				if (e.key === 'Escape') { renderTable(); }
+			$input.off('blur keydown').on('blur', saveEdit).on('keydown', function(e) {
+				if (e.key === 'Enter') { 
+					$(this).blur(); 
+				}
+				if (e.key === 'Escape') { 
+					renderTable(); 
+				}
 			});
 		});
 
-		// Photo Upload
-		function triggerPhotoUpload(idx) {
+		// Photo Upload - make globally accessible
+		window.triggerPhotoUpload = function(idx) {
 			currentUploadIdx = idx;
-			document.getElementById('photoUpload').click();
-		}
+			$('#photoUpload').click();
+		};
 
-		document.getElementById('photoUpload').addEventListener('change', function(e) {
-			const file = e.target.files[0];
+		$('#photoUpload').on('change', function(e) {
+			const file = this.files[0];
 			if (!file || currentUploadIdx < 0) return;
 
 			if (file.size > 2 * 1024 * 1024) {
@@ -594,17 +836,17 @@
 				notify('Photo uploaded!', 'success');
 			};
 			reader.readAsDataURL(file);
-			e.target.value = '';
+			$(this).val('');
 		});
 
-		// Remove Photo
-		function removePhoto(idx) {
+		// Remove Photo - make globally accessible
+		window.removePhoto = function(idx) {
 			if (!confirm('Remove this photo?')) return;
 			students[idx].photo = '';
 			saveStudents();
 			renderTable();
 			notify('Photo removed!', 'success');
-		}
+		};
 
 		function formatDateForInput(dateStr) {
 			if (!dateStr || dateStr === '-') return '';
@@ -620,34 +862,98 @@
 			return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 		}
 
-		function toggleStatus(idx) {
+		// Make globally accessible for onclick handlers
+		window.toggleStatus = function(idx) {
 			students[idx].status = students[idx].status === 'Active' ? 'Inactive' : 'Active';
 			saveStudents();
 			renderTable();
 			renderStats();
-		}
+		};
 
-		function deleteStudent(idx) {
+		window.deleteStudent = function(idx) {
 			if (!confirm(`Delete "${students[idx].name}"?`)) return;
 			students.splice(idx, 1);
 			saveStudents();
 			renderTable();
 			renderStats();
 			notify('Student deleted!');
+		};
+
+		let editingStudentIndex = -1;
+		let modalPhotoPreview = '';
+
+		function openAddStudentModal() {
+			editingStudentIndex = -1;
+			modalPhotoPreview = '';
+			$('#modalTitle').html('<i class="fas fa-user-plus"></i> Add New Student');
+			$('#studentForm')[0].reset();
+			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+			$('#studentStatus').val('Active');
+			$('#studentModal').addClass('show');
+		}
+
+		function closeStudentModal() {
+			$('#studentModal').removeClass('show');
+			editingStudentIndex = -1;
+			modalPhotoPreview = '';
 		}
 
 		function addNewStudent() {
-			const newId = 'STU-' + new Date().getFullYear() + '-' + String(students.length + 1).padStart(3, '0');
-			students.unshift({
-				id: newId, name: 'New Student', gender: 'Male', class: '1', section: 'A',
-				parent: '', address: '', dob: '', status: 'Active', photo: ''
-			});
+			openAddStudentModal();
+		}
+
+		window.saveStudentFromModal = function() {
+			const name = $('#studentName').val().trim();
+			const gender = $('#studentGender').val();
+			const classVal = $('#studentClass').val();
+			const section = $('#studentSection').val();
+			const parent = $('#studentParent').val().trim();
+			const address = $('#studentAddress').val().trim();
+			const dob = $('#studentDob').val();
+			const status = $('#studentStatus').val();
+			const photo = modalPhotoPreview;
+
+			if (!name) {
+				notify('Please enter student name', 'error');
+				return;
+			}
+
+			if (editingStudentIndex >= 0) {
+				// Update existing student
+				students[editingStudentIndex].name = name;
+				students[editingStudentIndex].gender = gender;
+				students[editingStudentIndex].class = classVal;
+				students[editingStudentIndex].section = section;
+				students[editingStudentIndex].parent = parent || '-';
+				students[editingStudentIndex].address = address || '-';
+				students[editingStudentIndex].dob = dob ? formatDateForDisplay(dob) : '-';
+				students[editingStudentIndex].status = status;
+				if (photo) students[editingStudentIndex].photo = photo;
+				notify('Student updated successfully!', 'success');
+			} else {
+				// Add new student
+				const newId = 'STU-' + new Date().getFullYear() + '-' + String(students.length + 1).padStart(3, '0');
+				students.unshift({
+					id: newId,
+					name: name,
+					gender: gender,
+					class: classVal,
+					section: section,
+					parent: parent || '-',
+					address: address || '-',
+					dob: dob ? formatDateForDisplay(dob) : '-',
+					status: status,
+					photo: photo
+				});
+				notify('New student added successfully!', 'success');
+			}
+
 			saveStudents();
 			page = 1;
 			renderTable();
 			renderStats();
-			notify('New student added! Click cells to edit.');
-		}
+			closeStudentModal();
+		};
 
 		function exportCSV() {
 			if (!students.length) { notify('No students to export', 'error'); return; }
@@ -665,34 +971,40 @@
 		}
 
 		// Event Listeners
-		document.getElementById('addStudentBtn').addEventListener('click', addNewStudent);
-		document.getElementById('fabAddBtn').addEventListener('click', addNewStudent);
-		document.getElementById('exportBtn').addEventListener('click', exportCSV);
-		document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
-		document.getElementById('searchInput').addEventListener('input', () => { page = 1; renderTable(); });
-		document.getElementById('classFilter').addEventListener('change', () => { page = 1; renderTable(); });
-		document.getElementById('prevBtn').addEventListener('click', () => { if (page > 1) { page--; renderTable(); } });
-		document.getElementById('nextBtn').addEventListener('click', () => { page++; renderTable(); });
-		document.getElementById('pageSizeSelect').addEventListener('change', e => { pageSize = parseInt(e.target.value); page = 1; renderTable(); });
+		$('#addStudentBtn').on('click', addNewStudent);
+		$('#fabAddBtn').on('click', addNewStudent);
+		$('#exportBtn').on('click', exportCSV);
+		$('#importBtn').on('click', () => $('#importFile').click());
+		$('#searchInput').on('input', () => { page = 1; renderTable(); });
+		$('#classFilter').on('change', () => { page = 1; renderTable(); });
+		$('#prevBtn').on('click', () => { if (page > 1) { page--; renderTable(); } });
+		$('#nextBtn').on('click', () => { page++; renderTable(); });
+		$('#pageSizeSelect').on('change', function() { pageSize = parseInt($(this).val()); page = 1; renderTable(); });
 
-		document.getElementById('selectAll').addEventListener('change', e => {
-			const search = document.getElementById('searchInput').value.toLowerCase();
-			const classFilter = document.getElementById('classFilter').value;
+		$('#selectAll').on('change', function() {
+			const search = $('#searchInput').val().toLowerCase();
+			const classFilter = $('#classFilter').val();
 			let filtered = students.filter(s => (!search || [s.id, s.name].join(' ').toLowerCase().includes(search)) && (!classFilter || s.class === classFilter));
 			const start = (page - 1) * pageSize;
-			filtered.slice(start, start + pageSize).forEach(s => { if (e.target.checked) selected.add(s.id); else selected.delete(s.id); });
+			const isChecked = $(this).prop('checked');
+			filtered.slice(start, start + pageSize).forEach(s => { 
+				if (isChecked) selected.add(s.id); 
+				else selected.delete(s.id); 
+			});
 			renderTable();
 		});
 
-		document.getElementById('tableBody').addEventListener('change', e => {
-			if (e.target.classList.contains('row-check')) {
-				if (e.target.checked) selected.add(e.target.dataset.id);
-				else selected.delete(e.target.dataset.id);
-				document.getElementById('bulkDeleteBtn').disabled = selected.size === 0;
+		$(document).on('change', '#tableBody .row-check', function() {
+			const id = $(this).data('id');
+			if ($(this).prop('checked')) {
+				selected.add(id);
+			} else {
+				selected.delete(id);
 			}
+			$('#bulkDeleteBtn').prop('disabled', selected.size === 0);
 		});
 
-		document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
+		$('#bulkDeleteBtn').on('click', () => {
 			if (selected.size === 0) return;
 			if (!confirm(`Delete ${selected.size} students?`)) return;
 			students = students.filter(s => !selected.has(s.id));
@@ -703,20 +1015,16 @@
 			notify('Deleted selected students!');
 		});
 
-		// Documents Modal
-		function viewStudentDocuments(idx) {
+		// Documents Modal - make globally accessible
+		window.viewStudentDocuments = function(idx) {
 			const student = students[idx];
 			if (!student || !student.documents || student.documents.length === 0) {
 				notify('No documents found for this student.', 'error');
 				return;
 			}
 			
-			const modal = document.getElementById('documentsModal');
-			const modalTitle = document.getElementById('documentsModalTitle');
-			const modalBody = document.getElementById('documentsModalBody');
-			
-			modalTitle.textContent = `${student.name} - Documents (${student.documents.length})`;
-			modalBody.innerHTML = student.documents.map((doc, i) => `
+			$('#documentsModalTitle').text(`${student.name} - Documents (${student.documents.length})`);
+			$('#documentsModalBody').html(student.documents.map((doc, i) => `
 				<div class="document-item" style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
 					<div style="display:flex;align-items:center;gap:12px;flex:1;">
 						<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;">
@@ -731,10 +1039,10 @@
 						<i class="fas fa-eye"></i> View
 					</button>
 				</div>
-			`).join('');
+			`).join(''));
 			
-			modal.style.display = 'flex';
-		}
+			$('#documentsModal').css('display', 'flex');
+		};
 		
 		function formatFileSize(bytes) {
 			if (!bytes || bytes === 0) return '0 Bytes';
@@ -744,26 +1052,180 @@
 			return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 		}
 		
-		function openDocument(data, type) {
+		window.openDocument = function(data, type) {
 			const newWindow = window.open();
 			if (type === 'application/pdf') {
 				newWindow.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:none;"></iframe>`);
 			} else {
 				newWindow.document.write(`<img src="${data}" style="max-width:100%;height:auto;">`);
 			}
-		}
+		};
 
+		// Initialize data
 		loadStudents();
+		
+		// Double-check: if still no students or very few, force generate 100
+		if (!students || students.length < 10) {
+			console.log('Generating 100 demo students... Current count:', students ? students.length : 0);
+			students = generateDemoStudents();
+			saveStudents();
+			console.log('Generated', students.length, 'students successfully');
+		}
+		
 		renderStats();
 		renderTable();
+		}); // End of $(document).ready()
+
+		// Modal photo upload handler
+		$('#modalPhotoUpload').on('change', function(e) {
+			const file = this.files[0];
+			if (!file) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				notify('Photo must be less than 2MB', 'error');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				modalPhotoPreview = event.target.result;
+				$('#modalPhotoPreview').html(`<img src="${modalPhotoPreview}" alt="Preview">`);
+				$('#removePhotoBtn').show();
+			};
+			reader.readAsDataURL(file);
+		});
+
+		window.removeModalPhoto = function() {
+			modalPhotoPreview = '';
+			$('#modalPhotoUpload').val('');
+			$('#modalPhotoPreview').html('<div class="placeholder"><i class="fas fa-user"></i><div style="font-size:12px;margin-top:8px;">No Photo</div></div>');
+			$('#removePhotoBtn').hide();
+		};
+
+		window.closeStudentModal = function() {
+			closeStudentModal();
+		};
+
+		// Close modal when clicking outside
+		$(document).on('click', '#studentModal', function(e) {
+			if ($(e.target).is('#studentModal')) {
+				closeStudentModal();
+			}
+		});
 	</script>
+
+	<!-- Add Student Modal -->
+	<div id="studentModal" class="student-modal">
+		<div class="student-modal-content">
+			<div class="modal-header">
+				<h3 id="modalTitle"><i class="fas fa-user-plus"></i> Add New Student</h3>
+				<button class="modal-close" onclick="closeStudentModal()"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<form id="studentForm">
+					<div class="form-row">
+						<div class="form-group">
+							<label>Student Name <span style="color:#ef4444">*</span></label>
+							<input type="text" id="studentName" placeholder="Enter full name" required>
+						</div>
+						<div class="form-group">
+							<label>Gender</label>
+							<select id="studentGender">
+								<option value="Male">Male</option>
+								<option value="Female">Female</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Class</label>
+							<select id="studentClass">
+								<option value="1">Class 1</option>
+								<option value="2">Class 2</option>
+								<option value="3">Class 3</option>
+								<option value="4">Class 4</option>
+								<option value="5">Class 5</option>
+								<option value="6">Class 6</option>
+								<option value="7">Class 7</option>
+								<option value="8">Class 8</option>
+								<option value="9">Class 9</option>
+								<option value="10">Class 10</option>
+								<option value="11">Class 11</option>
+								<option value="12">Class 12</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Section</label>
+							<select id="studentSection">
+								<option value="A">Section A</option>
+								<option value="B">Section B</option>
+								<option value="C">Section C</option>
+								<option value="Science">Science</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Parent/Guardian Name</label>
+							<input type="text" id="studentParent" placeholder="Enter parent name">
+						</div>
+						<div class="form-group">
+							<label>Date of Birth</label>
+							<input type="date" id="studentDob">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group full-width">
+							<label>Address</label>
+							<input type="text" id="studentAddress" placeholder="Enter address">
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="form-group">
+							<label>Status</label>
+							<select id="studentStatus">
+								<option value="Active">Active</option>
+								<option value="Inactive">Inactive</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Photo</label>
+							<div class="photo-upload-area">
+								<div class="photo-preview" id="modalPhotoPreview">
+									<div class="placeholder">
+										<i class="fas fa-user"></i>
+										<div style="font-size:12px;margin-top:8px;">No Photo</div>
+									</div>
+								</div>
+								<div>
+									<input type="file" id="modalPhotoUpload" accept="image/*" style="display:none;">
+									<button type="button" class="btn btn-outline btn-sm" onclick="$('#modalPhotoUpload').click()">
+										<i class="fas fa-camera"></i> Upload Photo
+									</button>
+									<button type="button" class="btn btn-outline btn-sm" onclick="removeModalPhoto()" style="margin-top:8px;display:none;" id="removePhotoBtn">
+										<i class="fas fa-trash"></i> Remove
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-secondary" onclick="closeStudentModal()">Cancel</button>
+				<button class="btn btn-primary" onclick="saveStudentFromModal()">
+					<i class="fas fa-save"></i> Save Student
+				</button>
+			</div>
+		</div>
+	</div>
 
 	<!-- Documents Modal -->
 	<div id="documentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
 		<div style="background:white;border-radius:16px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
 			<div style="padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
 				<h3 id="documentsModalTitle" style="margin:0;font-size:18px;font-weight:700;color:#1e293b;">Documents</h3>
-				<button onclick="document.getElementById('documentsModal').style.display='none'" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;">&times;</button>
+				<button onclick="$('#documentsModal').hide()" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;">&times;</button>
 			</div>
 			<div id="documentsModalBody" style="padding:20px;"></div>
 		</div>
