@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Exams & Grades</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+		.btn-outline:hover { border-color: #f59e0b; color: #f59e0b; }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+		}
+		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
+		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.stat-icon.red { background: #fef2f2; color: #ef4444; }
+		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.table-toolbar {
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 1px solid #f1f5f9;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.search-box { position: relative; width: 300px; }
+		.search-box input {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px 0 44px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.search-box input:focus { outline: none; border-color: #f59e0b; }
+		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { background: linear-gradient(135deg, #d97706, #f59e0b); }
+		.data-table th {
+			padding: 16px 20px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 13px;
+			color: white;
+			text-transform: uppercase;
+		}
+		.data-table th:first-child { padding-left: 24px; }
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 16px 20px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table td:first-child { padding-left: 24px; }
+
+		.exam-id { font-weight: 700; color: #d97706; }
+		.exam-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			background: #fffbeb;
+			color: #f59e0b;
+		}
+		.exam-info { display: flex; align-items: center; gap: 14px; }
+		.exam-name { font-weight: 600; color: #1e293b; }
+		.exam-subject { font-size: 12px; color: #64748b; }
+
+		.status-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+		}
+		.status-badge.scheduled { background: #dbeafe; color: #2563eb; }
+		.status-badge.ongoing { background: #fef3c7; color: #d97706; }
+		.status-badge.completed { background: #dcfce7; color: #16a34a; }
+		.status-badge.cancelled { background: #fef2f2; color: #dc2626; }
+
+		.checkbox-cell { width: 50px; }
+		.custom-checkbox {
+			width: 20px;
+			height: 20px;
+			border: 2px solid #cbd5e1;
+			border-radius: 6px;
+			cursor: pointer;
+			accent-color: #f59e0b;
+		}
+
+		.action-btns { display: flex; gap: 8px; }
+		.action-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+		}
+		.action-btn.view { background: #eff6ff; color: #3b82f6; }
+		.action-btn.edit { background: #f0fdf4; color: #22c55e; }
+		.action-btn.delete { background: #fef2f2; color: #ef4444; }
+		.action-btn:hover { transform: scale(1.1); }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.page-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.page-btn:hover:not(:disabled) { border-color: #f59e0b; color: #f59e0b; }
+		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+
+		.fab-btn {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #f59e0b, #d97706);
+			color: white;
+			border: none;
+			box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+			cursor: pointer;
+			font-size: 24px;
+			z-index: 100;
+			transition: all 0.3s;
+		}
+		.fab-btn:hover { transform: scale(1.1) rotate(90deg); }
+
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0,0,0,0.5);
+			backdrop-filter: blur(4px);
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+		}
+		.modal-overlay.active { display: flex; }
+		.modal-content {
+			background: white;
+			border-radius: 20px;
+			width: 600px;
+			max-width: 95%;
+			max-height: 90vh;
+			overflow-y: auto;
+			animation: modalSlide 0.3s ease;
+		}
+		@keyframes modalSlide { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+		.modal-header {
+			padding: 24px;
+			border-bottom: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.modal-title { font-size: 20px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 12px; }
+		.modal-close {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			border: none;
+			background: #f1f5f9;
+			cursor: pointer;
+		}
+		.modal-close:hover { background: #fef2f2; color: #ef4444; }
+		.modal-body { padding: 24px; }
+		.modal-footer {
+			padding: 20px 24px;
+			border-top: 1px solid #f1f5f9;
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+		}
+
+		.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+		.form-group { display: flex; flex-direction: column; gap: 8px; }
+		.form-group.full { grid-column: span 2; }
+		.form-label { font-size: 13px; font-weight: 600; color: #475569; text-transform: uppercase; }
+		.form-input, .form-select {
+			height: 48px;
+			padding: 0 16px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 15px;
+		}
+		.form-input:focus, .form-select:focus { outline: none; border-color: #f59e0b; }
+
+		.empty-state { text-align: center; padding: 60px 20px; }
+		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
+		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
+		.empty-state p { color: #94a3b8; }
+
+		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+		@media (max-width: 768px) {
+			.stats-row { grid-template-columns: 1fr; }
+			.form-grid { grid-template-columns: 1fr; }
+			.form-group.full { grid-column: span 1; }
+			.search-box { width: 100%; }
+		}
+	</style>
+</head>
+<body>
+	<div class="page exams-page active">
+		<div class="page-header">
+			<div class="page-title-section">
+				<h1><i class="fas fa-file-alt" style="color: #f59e0b; margin-right: 10px;"></i>Exams & Grades</h1>
+				<p>Schedule and manage examinations</p>
+			</div>
+			<div class="header-actions">
+				<input type="file" id="importFile" accept=".csv" style="display: none;">
+				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
+				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+			<button class="btn btn-primary" id="addExamBtn"><i class="fas fa-plus"></i> Add Exam</button>
+		</div>
+		</div>
+
+		<div class="stats-row" id="statsRow"></div>
+
+		<!-- Edit Hint Banner -->
+		<div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; padding: 12px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: #92400e;">
+			<i class="fas fa-lightbulb" style="color: #f59e0b; font-size: 16px;"></i>
+			<span><strong>Tip:</strong> Click on any cell to edit inline. Changes save automatically. Use action buttons to edit or delete exams.</span>
+		</div>
+
+		<div class="table-card">
+			<div class="table-toolbar">
+				<div class="search-box">
+					<i class="fas fa-search"></i>
+					<input type="text" id="searchInput" placeholder="Search exams...">
+				</div>
+				<div class="toolbar-actions">
+					<select id="statusFilter" class="page-select" style="min-width: 160px;">
+						<option value="">All Status</option>
+						<option value="Scheduled">Scheduled</option>
+						<option value="Ongoing">Ongoing</option>
+						<option value="Completed">Completed</option>
+						<option value="Cancelled">Cancelled</option>
+					</select>
+					<button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+						<i class="fas fa-trash"></i> Delete Selected
+					</button>
+				</div>
+		</div>
+
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
+						<th>Exam ID</th>
+						<th>Exam</th>
+						<th>Class</th>
+						<th>Date</th>
+						<th>Time</th>
+						<th>Duration</th>
+						<th>Max Marks</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+
+			<div class="table-footer">
+				<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 exams</div>
+				<div class="pagination-btns">
+					<button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+					<span id="pageNum" style="padding: 0 12px; font-weight: 600;">1</span>
+					<button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+					<select class="page-select" id="pageSizeSelect">
+						<option value="10">10 / page</option>
+						<option value="20">20 / page</option>
+						<option value="50">50 / page</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<button class="fab-btn" id="fabAddBtn" title="Add New Exam"><i class="fas fa-plus"></i></button>
+
+	<div class="modal-overlay" id="examModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="modal-title">
+					<i class="fas fa-file-alt" style="color: #f59e0b;"></i>
+					<span id="modalTitle">Add New Exam</span>
+				</div>
+				<button class="modal-close" id="closeModal"><i class="fas fa-times"></i></button>
+			</div>
+			<div class="modal-body">
+				<input type="hidden" id="editingId">
+			<div class="form-grid">
+					<div class="form-group full">
+						<label class="form-label">Exam Name *</label>
+						<input type="text" class="form-input" id="examName" placeholder="e.g., Mid Term Examination">
+					</div>
+				<div class="form-group">
+						<label class="form-label">Subject *</label>
+						<select class="form-select" id="examSubject">
+							<option value="">Select Subject</option>
+							<option value="Mathematics">Mathematics</option>
+							<option value="Science">Science</option>
+							<option value="English">English</option>
+							<option value="Physics">Physics</option>
+							<option value="Chemistry">Chemistry</option>
+							<option value="Biology">Biology</option>
+							<option value="History">History</option>
+							<option value="Computer Science">Computer Science</option>
+						</select>
+				</div>
+				<div class="form-group">
+						<label class="form-label">Class *</label>
+						<select class="form-select" id="examClass">
+							<option value="">Select Class</option>
+							<option value="9">Class 9</option>
+							<option value="10">Class 10</option>
+							<option value="11">Class 11</option>
+							<option value="12">Class 12</option>
+					</select>
+				</div>
+				<div class="form-group">
+						<label class="form-label">Date *</label>
+						<input type="date" class="form-input" id="examDate">
+					</div>
+					<div class="form-group">
+						<label class="form-label">Time</label>
+						<input type="time" class="form-input" id="examTime" value="09:00">
+				</div>
+				<div class="form-group">
+						<label class="form-label">Duration (mins)</label>
+						<input type="number" class="form-input" id="examDuration" placeholder="180" value="180">
+				</div>
+				<div class="form-group">
+						<label class="form-label">Max Marks</label>
+						<input type="number" class="form-input" id="examMarks" placeholder="100" value="100">
+				</div>
+				<div class="form-group">
+						<label class="form-label">Status</label>
+						<select class="form-select" id="examStatus">
+							<option value="Scheduled">📅 Scheduled</option>
+							<option value="Ongoing">⏳ Ongoing</option>
+							<option value="Completed">✅ Completed</option>
+							<option value="Cancelled">❌ Cancelled</option>
+					</select>
+				</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-outline" id="cancelBtn">Cancel</button>
+				<button class="btn btn-primary" id="saveBtn"><i class="fas fa-save"></i> Save Exam</button>
+				</div>
+			</div>
+		</div>
+
+	<script>
+		function notify(msg, type = 'success') {
+			document.querySelectorAll('.toast').forEach(t => t.remove());
+			const toast = document.createElement('div');
+			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#f59e0b';
+			toast.style.cssText = `position:fixed;bottom:30px;right:30px;padding:16px 24px;background:${bg};color:white;border-radius:12px;font-weight:600;z-index:10000;display:flex;align-items:center;gap:10px;animation:slideIn 0.4s ease;`;
+			toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+			document.body.appendChild(toast);
+			if (!document.getElementById('toastStyle')) {
+				const s = document.createElement('style');
+				s.id = 'toastStyle';
+				s.textContent = `@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}`;
+				document.head.appendChild(s);
+			}
+			setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+		}
+
+		const STORAGE_KEY = 'edu_exams';
+		let exams = [];
+		let page = 1, pageSize = 10;
+		let selected = new Set();
+
+		function loadExams() {
+			try {
+				const data = localStorage.getItem(STORAGE_KEY);
+				if (data) { exams = JSON.parse(data); }
+				else {
+					exams = [
+						{ id: 'EXM001', name: 'Mid Term Examination', subject: 'Mathematics', class: '10', date: '2025-12-10', time: '09:00', duration: 180, max: 100, status: 'Scheduled' },
+						{ id: 'EXM002', name: 'Mid Term Examination', subject: 'Science', class: '10', date: '2025-12-12', time: '09:00', duration: 180, max: 100, status: 'Scheduled' },
+						{ id: 'EXM003', name: 'Unit Test 1', subject: 'English', class: '9', date: '2025-11-25', time: '10:00', duration: 90, max: 50, status: 'Completed' },
+						{ id: 'EXM004', name: 'Final Examination', subject: 'Physics', class: '12', date: '2026-03-15', time: '09:00', duration: 180, max: 100, status: 'Scheduled' },
+						{ id: 'EXM005', name: 'Practical Exam', subject: 'Chemistry', class: '11', date: '2025-12-05', time: '14:00', duration: 120, max: 30, status: 'Ongoing' },
+						{ id: 'EXM006', name: 'Quiz', subject: 'Computer Science', class: '10', date: '2025-11-20', time: '11:00', duration: 45, max: 25, status: 'Completed' }
+					];
+					saveExams();
+				}
+			} catch (e) { exams = []; }
+		}
+
+		function saveExams() { localStorage.setItem(STORAGE_KEY, JSON.stringify(exams)); }
+
+		function renderStats() {
+			const total = exams.length;
+			const scheduled = exams.filter(e => e.status === 'Scheduled').length;
+			const ongoing = exams.filter(e => e.status === 'Ongoing').length;
+			const completed = exams.filter(e => e.status === 'Completed').length;
+
+			document.getElementById('statsRow').innerHTML = `
+				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-file-alt"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">Total Exams</div></div></div>
+				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-calendar-alt"></i></div><div><div class="stat-value">${scheduled}</div><div class="stat-label">Scheduled</div></div></div>
+				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-spinner"></i></div><div><div class="stat-value">${ongoing}</div><div class="stat-label">Ongoing</div></div></div>
+				<div class="stat-card"><div class="stat-icon red"><i class="fas fa-check-circle"></i></div><div><div class="stat-value">${completed}</div><div class="stat-label">Completed</div></div></div>
+			`;
+		}
+
+		function renderTable() {
+			const search = document.getElementById('searchInput').value.toLowerCase();
+			const statusFilter = document.getElementById('statusFilter').value;
+
+			let filtered = exams.filter(e => {
+				const matchSearch = !search || [e.id, e.name, e.subject, e.class].join(' ').toLowerCase().includes(search);
+				const matchStatus = !statusFilter || e.status === statusFilter;
+				return matchSearch && matchStatus;
+			});
+
+			const total = filtered.length;
+			const totalPages = Math.max(1, Math.ceil(total / pageSize));
+			if (page > totalPages) page = totalPages;
+
+			const start = (page - 1) * pageSize;
+			const pageData = filtered.slice(start, start + pageSize);
+			const tbody = document.getElementById('tableBody');
+
+			if (pageData.length === 0) {
+				tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fas fa-file-alt"></i><h3>No Exams Found</h3><p>Add new exams to get started</p></div></td></tr>`;
+			} else {
+				tbody.innerHTML = pageData.map((e, idx) => {
+					const globalIdx = start + idx;
+					const statusClass = e.status.toLowerCase();
+					return `
+						<tr>
+							<td class="checkbox-cell"><input type="checkbox" class="custom-checkbox" data-id="${e.id}" ${selected.has(e.id) ? 'checked' : ''}></td>
+							<td><span class="exam-id">${e.id}</span></td>
+							<td><div class="exam-info"><div class="exam-icon"><i class="fas fa-file-alt"></i></div><div><div class="exam-name">${e.name}</div><div class="exam-subject">${e.subject}</div></div></div></td>
+							<td>Class ${e.class}</td>
+							<td>${formatDate(e.date)}</td>
+							<td>${e.time || '-'}</td>
+							<td>${e.duration} mins</td>
+							<td>${e.max} marks</td>
+							<td><span class="status-badge ${statusClass}">${e.status}</span></td>
+							<td><div class="action-btns"><button class="action-btn view" data-action="view" data-idx="${globalIdx}"><i class="fas fa-eye"></i></button><button class="action-btn edit" data-action="edit" data-idx="${globalIdx}"><i class="fas fa-edit"></i></button><button class="action-btn delete" data-action="delete" data-idx="${globalIdx}"><i class="fas fa-trash"></i></button></div></td>
+				</tr>
+					`;
+				}).join('');
+			}
+
+			document.getElementById('pageInfo').textContent = `Showing ${start + 1}-${Math.min(start + pageSize, total)} of ${total} exams`;
+			document.getElementById('pageNum').textContent = page;
+			document.getElementById('prevBtn').disabled = page <= 1;
+			document.getElementById('nextBtn').disabled = page >= totalPages;
+			document.getElementById('bulkDeleteBtn').disabled = selected.size === 0;
+			document.getElementById('selectAll').checked = pageData.length > 0 && pageData.every(e => selected.has(e.id));
+		}
+
+		function formatDate(dateStr) {
+			if (!dateStr) return '-';
+			const d = new Date(dateStr);
+			if (isNaN(d)) return dateStr;
+			return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+		}
+
+		function openModal(isEdit = false, idx = -1) {
+			document.getElementById('modalTitle').textContent = isEdit ? 'Edit Exam' : 'Add New Exam';
+			document.getElementById('editingId').value = isEdit ? idx : -1;
+			if (isEdit && exams[idx]) {
+				const e = exams[idx];
+				document.getElementById('examName').value = e.name || '';
+				document.getElementById('examSubject').value = e.subject || '';
+				document.getElementById('examClass').value = e.class || '';
+				document.getElementById('examDate').value = e.date || '';
+				document.getElementById('examTime').value = e.time || '09:00';
+				document.getElementById('examDuration').value = e.duration || 180;
+				document.getElementById('examMarks').value = e.max || 100;
+				document.getElementById('examStatus').value = e.status || 'Scheduled';
+			} else {
+				['examName', 'examSubject', 'examClass', 'examDate'].forEach(id => document.getElementById(id).value = '');
+				document.getElementById('examTime').value = '09:00';
+				document.getElementById('examDuration').value = 180;
+				document.getElementById('examMarks').value = 100;
+				document.getElementById('examStatus').value = 'Scheduled';
+			}
+			document.getElementById('examModal').classList.add('active');
+		}
+
+		function closeModal() { document.getElementById('examModal').classList.remove('active'); }
+
+		function saveExam() {
+			const name = document.getElementById('examName').value.trim();
+			const subject = document.getElementById('examSubject').value;
+			const klass = document.getElementById('examClass').value;
+			const date = document.getElementById('examDate').value;
+			const time = document.getElementById('examTime').value;
+			const duration = parseInt(document.getElementById('examDuration').value) || 180;
+			const max = parseInt(document.getElementById('examMarks').value) || 100;
+			const status = document.getElementById('examStatus').value;
+
+			if (!name) { notify('Please enter exam name', 'error'); return; }
+			if (!subject) { notify('Please select subject', 'error'); return; }
+			if (!klass) { notify('Please select class', 'error'); return; }
+			if (!date) { notify('Please select date', 'error'); return; }
+
+			const editIdx = parseInt(document.getElementById('editingId').value);
+			if (editIdx >= 0) {
+				exams[editIdx] = { ...exams[editIdx], name, subject, class: klass, date, time, duration, max, status };
+				notify('Exam updated successfully!');
+			} else {
+				const newId = 'EXM' + String(exams.length + 1).padStart(3, '0');
+				exams.unshift({ id: newId, name, subject, class: klass, date, time, duration, max, status });
+				notify('Exam added successfully!');
+			}
+			saveExams();
+			closeModal();
+			renderStats();
+			renderTable();
+		}
+
+		function deleteExam(idx) {
+			const e = exams[idx];
+			if (!e) return;
+			if (!confirm(`Delete "${e.name}"?`)) return;
+			exams.splice(idx, 1);
+			saveExams();
+			notify('Exam deleted!');
+			renderStats();
+			renderTable();
+		}
+
+		function exportCSV() {
+			if (!exams.length) { notify('No exams to export', 'error'); return; }
+			const headers = ['S.No', 'Exam ID', 'Name', 'Subject', 'Class', 'Date', 'Time', 'Duration', 'Max Marks', 'Status'];
+			let csv = '\uFEFF' + headers.join(',') + '\n';
+			exams.forEach((e, i) => {
+				csv += [i + 1, e.id, e.name, e.subject, 'Class ' + e.class, e.date, e.time || '-', e.duration, e.max, e.status].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
+			});
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `Exams_${new Date().toISOString().slice(0, 10)}.csv`;
+			link.click();
+			notify('Exported to Excel!');
+		}
+
+		// Event Listeners
+		document.getElementById('addExamBtn').addEventListener('click', () => openModal(false));
+		document.getElementById('fabAddBtn').addEventListener('click', () => openModal(false));
+		document.getElementById('closeModal').addEventListener('click', closeModal);
+		document.getElementById('cancelBtn').addEventListener('click', closeModal);
+		document.getElementById('saveBtn').addEventListener('click', saveExam);
+		document.getElementById('exportBtn').addEventListener('click', exportCSV);
+		document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+		document.getElementById('searchInput').addEventListener('input', () => { page = 1; renderTable(); });
+		document.getElementById('statusFilter').addEventListener('change', () => { page = 1; renderTable(); });
+		document.getElementById('prevBtn').addEventListener('click', () => { if (page > 1) { page--; renderTable(); } });
+		document.getElementById('nextBtn').addEventListener('click', () => { page++; renderTable(); });
+		document.getElementById('pageSizeSelect').addEventListener('change', e => { pageSize = parseInt(e.target.value); page = 1; renderTable(); });
+
+		document.getElementById('selectAll').addEventListener('change', e => {
+			const search = document.getElementById('searchInput').value.toLowerCase();
+			const statusFilter = document.getElementById('statusFilter').value;
+			let filtered = exams.filter(ex => (!search || [ex.id, ex.name, ex.subject, ex.class].join(' ').toLowerCase().includes(search)) && (!statusFilter || ex.status === statusFilter));
+			const start = (page - 1) * pageSize;
+			filtered.slice(start, start + pageSize).forEach(ex => { if (e.target.checked) selected.add(ex.id); else selected.delete(ex.id); });
+			renderTable();
+		});
+
+		document.getElementById('tableBody').addEventListener('change', e => {
+			if (e.target.classList.contains('custom-checkbox')) {
+				const id = e.target.dataset.id;
+				if (e.target.checked) selected.add(id); else selected.delete(id);
+				document.getElementById('bulkDeleteBtn').disabled = selected.size === 0;
+			}
+		});
+
+		document.getElementById('tableBody').addEventListener('click', e => {
+			const btn = e.target.closest('[data-action]');
+			const cell = e.target.closest('td');
+			const row = e.target.closest('tr');
+			
+			// Handle buttons
+			if (btn) {
+				const idx = parseInt(btn.dataset.idx);
+				if (btn.dataset.action === 'edit') openModal(true, idx);
+				if (btn.dataset.action === 'delete') deleteExam(idx);
+				return;
+			}
+			
+			// Inline editing for cells (skip checkbox and action columns)
+			if (cell && row && !cell.querySelector('input') && !cell.querySelector('select')) {
+				const cellIdx = cell.cellIndex;
+				// Editable columns: 2 (Name), 3 (Subject), 4 (Class), 5 (Date), 6 (Time), 7 (Duration), 8 (Marks)
+				if (cellIdx >= 2 && cellIdx <= 8) {
+					const originalHTML = cell.innerHTML;
+					const originalText = cell.textContent.trim();
+					const examIdx = parseInt(row.dataset.idx);
+					
+					let input;
+					if (cellIdx === 5) { // Date
+						input = document.createElement('input');
+						input.type = 'date';
+						input.value = exams[examIdx]?.date || '';
+					} else if (cellIdx === 6) { // Time
+						input = document.createElement('input');
+						input.type = 'time';
+						input.value = exams[examIdx]?.time || '09:00';
+					} else {
+						input = document.createElement('input');
+						input.type = 'text';
+						input.value = originalText;
+					}
+					
+					input.style.cssText = 'width: 100%; padding: 8px; border: 2px solid #f59e0b; border-radius: 6px; font-size: 13px;';
+					cell.innerHTML = '';
+					cell.appendChild(input);
+					input.focus();
+					if (input.select) input.select();
+					
+					const saveEdit = () => {
+						let newValue = input.value.trim() || originalText;
+						
+						// Update actual data
+						if (examIdx >= 0 && exams[examIdx]) {
+							if (cellIdx === 2) exams[examIdx].name = newValue;
+							if (cellIdx === 3) exams[examIdx].subject = newValue;
+							if (cellIdx === 4) exams[examIdx].class = newValue.replace('Class ', '');
+							if (cellIdx === 5) { exams[examIdx].date = input.value; newValue = formatDate(input.value); }
+							if (cellIdx === 6) exams[examIdx].time = input.value;
+							if (cellIdx === 7) exams[examIdx].duration = parseInt(newValue) || 180;
+							if (cellIdx === 8) exams[examIdx].max = parseInt(newValue) || 100;
+							saveExams();
+						}
+						
+						renderTable();
+						notify('Updated!', 'success');
+					};
+					
+					input.addEventListener('blur', saveEdit);
+					input.addEventListener('keydown', (ev) => {
+						if (ev.key === 'Enter') input.blur();
+						if (ev.key === 'Escape') { renderTable(); }
+					});
+				}
+			}
+		});
+
+		document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
+			if (selected.size === 0) return;
+			if (!confirm(`Delete ${selected.size} exams?`)) return;
+			exams = exams.filter(e => !selected.has(e.id));
+			selected.clear();
+			saveExams();
+			notify('Deleted selected exams!');
+			renderStats();
+			renderTable();
+		});
+
+		document.getElementById('examModal').addEventListener('click', e => { if (e.target.id === 'examModal') closeModal(); });
+		document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+		loadExams();
+		renderStats();
+		renderTable();
+	</script>
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Students</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
+
+		.page-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.page-title-section h1 { font-size: 24px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+		.page-title-section p { font-size: 14px; color: #64748b; }
+		.header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+		.btn {
+			padding: 12px 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.2s;
+			border: none;
+		}
+		.btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+		.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+		.btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+		.btn-outline:hover { border-color: #3b82f6; color: #3b82f6; }
+		.btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+		.btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+		.btn-sm { padding: 8px 14px; font-size: 13px; }
+
+		.stats-row {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+			margin-bottom: 24px;
+		}
+		.stat-card {
+			background: white;
+			border-radius: 16px;
+			padding: 20px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			display: flex;
+			align-items: center;
+			gap: 16px;
+		}
+		.stat-icon {
+			width: 56px;
+			height: 56px;
+			border-radius: 14px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 24px;
+		}
+		.stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+		.stat-icon.green { background: #f0fdf4; color: #22c55e; }
+		.stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+		.stat-icon.purple { background: #f3e8ff; color: #8b5cf6; }
+		.stat-value { font-size: 28px; font-weight: 700; color: #1e293b; }
+		.stat-label { font-size: 13px; color: #64748b; margin-top: 2px; }
+
+		.table-card {
+			background: white;
+			border-radius: 16px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+			overflow: hidden;
+		}
+		.table-toolbar {
+			padding: 20px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-bottom: 1px solid #f1f5f9;
+			flex-wrap: wrap;
+			gap: 16px;
+		}
+		.search-box { position: relative; width: 300px; }
+		.search-box input {
+			width: 100%;
+			height: 44px;
+			padding: 0 16px 0 44px;
+			border: 2px solid #e2e8f0;
+			border-radius: 10px;
+			font-size: 14px;
+		}
+		.search-box input:focus { outline: none; border-color: #3b82f6; }
+		.search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+		.toolbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+		.data-table { width: 100%; border-collapse: collapse; }
+		.data-table thead { background: linear-gradient(135deg, #1e3a5f, #2d4a6f); }
+		.data-table th {
+			padding: 16px 12px;
+			text-align: left;
+			font-weight: 600;
+			font-size: 12px;
+			color: white;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.data-table th:first-child { padding-left: 20px; }
+		.data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: all 0.2s; }
+		.data-table tbody tr:hover { background: #f8fafc; }
+		.data-table td { padding: 12px; font-size: 14px; color: #334155; vertical-align: middle; }
+		.data-table td:first-child { padding-left: 20px; }
+
+		/* Editable Cells */
+		.editable-cell {
+			cursor: pointer;
+			padding: 8px 12px;
+			border-radius: 6px;
+			transition: all 0.2s;
+			min-height: 36px;
+			display: flex;
+			align-items: center;
+		}
+		.editable-cell:hover {
+			background: #eff6ff;
+			outline: 2px solid #3b82f6;
+		}
+		.editable-cell.editing {
+			padding: 0;
+		}
+		.editable-cell input, .editable-cell select {
+			width: 100%;
+			height: 36px;
+			padding: 0 10px;
+			border: 2px solid #3b82f6;
+			border-radius: 6px;
+			font-size: 14px;
+			background: white;
+		}
+		.editable-cell input:focus, .editable-cell select:focus {
+			outline: none;
+		}
+
+		/* Avatar with Upload */
+		.avatar-wrapper {
+			position: relative;
+			display: inline-block;
+		}
+		.avatar {
+			width: 48px;
+			height: 48px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: 600;
+			font-size: 16px;
+			color: white;
+			overflow: hidden;
+			position: relative;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		.avatar.male { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+		.avatar.female { background: linear-gradient(135deg, #f472b6, #ec4899); }
+		.avatar img { width: 100%; height: 100%; object-fit: cover; }
+		.avatar .upload-overlay {
+			position: absolute;
+			inset: 0;
+			background: rgba(0,0,0,0.6);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 0.3s;
+			border-radius: 50%;
+		}
+		.avatar:hover .upload-overlay { opacity: 1; }
+		.avatar .upload-overlay i { color: white; font-size: 18px; }
+		.remove-photo-btn {
+			position: absolute;
+			top: -4px;
+			right: -4px;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background: #ef4444;
+			color: white;
+			border: 2px solid white;
+			font-size: 10px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			opacity: 0;
+			transition: all 0.2s;
+			z-index: 10;
+		}
+		.avatar-wrapper:hover .remove-photo-btn { opacity: 1; }
+		.remove-photo-btn:hover { transform: scale(1.2); background: #dc2626; }
+
+		.student-info { display: flex; align-items: center; gap: 12px; }
+		.student-name { font-weight: 600; color: #1e293b; }
+		.student-id { font-weight: 700; color: #1e3a5f; }
+
+		.gender-badge {
+			padding: 4px 12px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			display: inline-block;
+		}
+		.gender-badge.male { background: #dbeafe; color: #2563eb; }
+		.gender-badge.female { background: #fce7f3; color: #db2777; }
+
+		.status-badge {
+			padding: 6px 14px;
+			border-radius: 20px;
+			font-size: 12px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.status-badge.active { background: #dcfce7; color: #16a34a; }
+		.status-badge.inactive { background: #fef2f2; color: #dc2626; }
+
+		.checkbox-cell { width: 40px; }
+		.custom-checkbox { width: 18px; height: 18px; accent-color: #3b82f6; cursor: pointer; }
+
+		.action-btns { display: flex; gap: 6px; }
+		.action-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			border: none;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+			font-size: 13px;
+		}
+		.action-btn.save { background: #dcfce7; color: #16a34a; }
+		.action-btn.view { background: #dbeafe; color: #2563eb; }
+		.action-btn.delete { background: #fef2f2; color: #ef4444; }
+		.action-btn:hover { transform: scale(1.1); }
+
+		.table-footer {
+			padding: 16px 24px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-top: 1px solid #f1f5f9;
+		}
+		.pagination-info { font-size: 14px; color: #64748b; }
+		.pagination-btns { display: flex; align-items: center; gap: 8px; }
+		.page-btn {
+			width: 36px;
+			height: 36px;
+			border-radius: 8px;
+			border: 2px solid #e2e8f0;
+			background: white;
+			color: #64748b;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.page-btn:hover:not(:disabled) { border-color: #3b82f6; color: #3b82f6; }
+		.page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+		.page-select { height: 36px; padding: 0 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+
+		.fab-btn {
+			position: fixed;
+			bottom: 30px;
+			right: 30px;
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, #3b82f6, #2563eb);
+			color: white;
+			border: none;
+			box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+			cursor: pointer;
+			font-size: 24px;
+			z-index: 100;
+			transition: all 0.3s;
+		}
+		.fab-btn:hover { transform: scale(1.1) rotate(90deg); }
+
+		.empty-state { text-align: center; padding: 60px 20px; }
+		.empty-state i { font-size: 64px; color: #e2e8f0; margin-bottom: 20px; }
+		.empty-state h3 { font-size: 20px; color: #475569; margin-bottom: 8px; }
+		.empty-state p { color: #94a3b8; }
+
+		.edit-hint {
+			background: #fffbeb;
+			border: 1px solid #fcd34d;
+			border-radius: 8px;
+			padding: 10px 16px;
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 13px;
+			color: #92400e;
+		}
+		.edit-hint i { color: #f59e0b; }
+
+		@media (max-width: 1200px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+		@media (max-width: 768px) { .stats-row { grid-template-columns: 1fr; } .search-box { width: 100%; } }
+	</style>
+</head>
+<body>
+	<div class="page students-page active">
+		<div class="page-header">
+			<div class="page-title-section">
+				<h1><i class="fas fa-user-graduate" style="color: #3b82f6; margin-right: 10px;"></i>Student Management</h1>
+				<p>Manage all student records - Click any cell to edit inline</p>
+		</div>
+			<div class="header-actions">
+				<input type="file" id="importFile" accept=".csv" style="display: none;">
+				<button class="btn btn-outline" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
+				<button class="btn btn-success" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+			</div>
+	</div>
+
+		<div class="edit-hint">
+			<i class="fas fa-lightbulb"></i>
+			<span><strong>Tip:</strong> Click on any cell to edit directly. Click on the avatar to upload a photo. Changes are auto-saved.</span>
+				</div>
+
+		<div class="stats-row" id="statsRow"></div>
+
+		<div class="table-card">
+			<div class="table-toolbar">
+				<div class="search-box">
+					<i class="fas fa-search"></i>
+					<input type="text" id="searchInput" placeholder="Search students...">
+			</div>
+				<div class="toolbar-actions">
+					<select id="classFilter" class="page-select" style="min-width: 130px;">
+						<option value="">All Classes</option>
+						<option value="1">Class 1</option>
+						<option value="2">Class 2</option>
+						<option value="3">Class 3</option>
+						<option value="4">Class 4</option>
+						<option value="5">Class 5</option>
+						<option value="6">Class 6</option>
+						<option value="7">Class 7</option>
+						<option value="8">Class 8</option>
+						<option value="9">Class 9</option>
+						<option value="10">Class 10</option>
+						<option value="11">Class 11</option>
+						<option value="12">Class 12</option>
+					</select>
+					<button class="btn btn-danger btn-sm" id="bulkDeleteBtn" disabled>
+						<i class="fas fa-trash"></i> Delete Selected
+					</button>
+				</div>
+			</div>
+
+			<!-- Hidden file input for photo upload -->
+			<input type="file" id="photoUpload" accept="image/*" style="display: none;">
+
+			<table class="data-table">
+				<thead>
+					<tr>
+						<th class="checkbox-cell"><input type="checkbox" class="custom-checkbox" id="selectAll"></th>
+						<th>Photo</th>
+						<th>Student ID</th>
+						<th>Name</th>
+						<th>Gender</th>
+						<th>Class</th>
+						<th>Section</th>
+						<th>Parent</th>
+						<th>Address</th>
+						<th>DOB</th>
+						<th>Status</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody id="tableBody"></tbody>
+			</table>
+
+			<div class="table-footer">
+				<div class="pagination-info" id="pageInfo">Showing 0-0 of 0 students</div>
+				<div class="pagination-btns">
+					<button class="page-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+					<span id="pageNum" style="padding: 0 12px; font-weight: 600;">1</span>
+					<button class="page-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+					<select class="page-select" id="pageSizeSelect">
+						<option value="10">10 / page</option>
+						<option value="20">20 / page</option>
+						<option value="50">50 / page</option>
+					</select>
+			</div>
+			</div>
+		</div>
+	</div>
+
+	<button class="fab-btn" id="fabAddBtn" title="Add New Student"><i class="fas fa-plus"></i></button>
+
+	<script>
+		function notify(msg, type = 'success') {
+			document.querySelectorAll('.toast').forEach(t => t.remove());
+			const toast = document.createElement('div');
+			const bg = type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#3b82f6';
+			toast.className = 'toast';
+			toast.style.cssText = `position:fixed;bottom:30px;right:30px;padding:14px 20px;background:${bg};color:white;border-radius:10px;font-weight:600;z-index:10000;display:flex;align-items:center;gap:8px;animation:slideIn 0.3s ease;font-family:'Segoe UI',sans-serif;font-size:14px;`;
+			toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${msg}`;
+			document.body.appendChild(toast);
+			if (!document.getElementById('toastStyle')) {
+				const s = document.createElement('style');
+				s.id = 'toastStyle';
+				s.textContent = `@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}`;
+				document.head.appendChild(s);
+			}
+			setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+		}
+
+		const STORAGE_KEY = 'edu_students';
+		let students = [];
+		let page = 1, pageSize = 10;
+		let selected = new Set();
+		let currentUploadIdx = -1;
+
+		function loadStudents() {
+			try {
+				const data = localStorage.getItem(STORAGE_KEY);
+				if (data) students = JSON.parse(data);
+				else {
+					students = [
+						{ id: '#0025', name: 'Anitha', gender: 'Female', class: '12', section: 'B', parent: 'Hari', address: 'West Street', dob: '07/06/2008', status: 'Active', photo: '' },
+						{ id: '#0024', name: 'Ami', gender: 'Female', class: '11', section: 'A', parent: 'Nami', address: 'East Town', dob: '06/06/2009', status: 'Active', photo: '' },
+						{ id: 'STU-2023-001', name: 'Rahul Sharma', gender: 'Male', class: '10', section: 'A', parent: 'Amit Sharma', address: 'Delhi, India', dob: '15/08/2008', status: 'Active', photo: '' },
+						{ id: 'STU-2023-002', name: 'Priya Patel', gender: 'Female', class: '9', section: 'B', parent: 'Sunita Patel', address: 'Mumbai, India', dob: '22/03/2009', status: 'Active', photo: '' },
+						{ id: 'STU-2023-003', name: 'Amit Kumar', gender: 'Male', class: '11', section: 'Science', parent: 'Rajesh Kumar', address: 'Bangalore, India', dob: '10/12/2007', status: 'Active', photo: '' }
+					];
+					saveStudents();
+				}
+			} catch (e) { students = []; }
+		}
+
+		function saveStudents() { localStorage.setItem(STORAGE_KEY, JSON.stringify(students)); }
+
+		function renderStats() {
+			const total = students.length;
+			const active = students.filter(s => s.status === 'Active').length;
+			const male = students.filter(s => s.gender === 'Male').length;
+			const female = students.filter(s => s.gender === 'Female').length;
+			document.getElementById('statsRow').innerHTML = `
+				<div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div><div class="stat-value">${total}</div><div class="stat-label">Total Students</div></div></div>
+				<div class="stat-card"><div class="stat-icon green"><i class="fas fa-user-check"></i></div><div><div class="stat-value">${active}</div><div class="stat-label">Active Students</div></div></div>
+				<div class="stat-card"><div class="stat-icon purple"><i class="fas fa-male"></i></div><div><div class="stat-value">${male}</div><div class="stat-label">Male Students</div></div></div>
+				<div class="stat-card"><div class="stat-icon orange"><i class="fas fa-female"></i></div><div><div class="stat-value">${female}</div><div class="stat-label">Female Students</div></div></div>
+			`;
+		}
+
+		function renderTable() {
+			const search = document.getElementById('searchInput').value.toLowerCase();
+			const classFilter = document.getElementById('classFilter').value;
+			let filtered = students.filter(s => {
+				const matchSearch = !search || [s.id, s.name, s.parent, s.address].join(' ').toLowerCase().includes(search);
+				const matchClass = !classFilter || s.class === classFilter;
+				return matchSearch && matchClass;
+			});
+
+			const total = filtered.length;
+			const totalPages = Math.max(1, Math.ceil(total / pageSize));
+			if (page > totalPages) page = totalPages;
+			const start = (page - 1) * pageSize;
+			const pageData = filtered.slice(start, start + pageSize);
+			const tbody = document.getElementById('tableBody');
+
+			if (pageData.length === 0) {
+				tbody.innerHTML = `<tr><td colspan="12"><div class="empty-state"><i class="fas fa-user-graduate"></i><h3>No Students Found</h3><p>Add students or adjust your search</p></div></td></tr>`;
+			} else {
+				tbody.innerHTML = pageData.map((s, idx) => {
+					const globalIdx = students.indexOf(s);
+					const initials = s.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+					const genderClass = s.gender === 'Female' ? 'female' : 'male';
+					const avatarContent = s.photo ? `<img src="${s.photo}" alt="${s.name}">` : initials;
+					const removeBtn = s.photo ? `<button class="remove-photo-btn" onclick="event.stopPropagation(); removePhoto(${globalIdx})" title="Remove photo"><i class="fas fa-times"></i></button>` : '';
+					return `
+						<tr data-idx="${globalIdx}">
+							<td class="checkbox-cell"><input type="checkbox" class="custom-checkbox row-check" data-id="${s.id}" ${selected.has(s.id) ? 'checked' : ''}></td>
+							<td>
+								<div class="avatar-wrapper">
+									<div class="avatar ${genderClass}" onclick="triggerPhotoUpload(${globalIdx})" title="Click to upload photo">
+										${avatarContent}
+										<div class="upload-overlay"><i class="fas fa-camera"></i></div>
+									</div>
+									${removeBtn}
+								</div>
+							</td>
+							<td><span class="student-id">${s.id}</span></td>
+							<td><div class="editable-cell" data-field="name" data-idx="${globalIdx}">${s.name}</div></td>
+							<td><div class="editable-cell" data-field="gender" data-idx="${globalIdx}" data-type="select"><span class="gender-badge ${genderClass}">${s.gender}</span></div></td>
+							<td><div class="editable-cell" data-field="class" data-idx="${globalIdx}">${s.class}</div></td>
+							<td><div class="editable-cell" data-field="section" data-idx="${globalIdx}" data-type="select">${s.section}</div></td>
+							<td><div class="editable-cell" data-field="parent" data-idx="${globalIdx}">${s.parent || '-'}</div></td>
+							<td><div class="editable-cell" data-field="address" data-idx="${globalIdx}">${s.address || '-'}</div></td>
+							<td><div class="editable-cell" data-field="dob" data-idx="${globalIdx}" data-type="date">${s.dob || '-'}</div></td>
+							<td><span class="status-badge ${s.status === 'Active' ? 'active' : 'inactive'}" onclick="toggleStatus(${globalIdx})">${s.status}</span></td>
+							<td>
+								<div class="action-btns">
+									${s.documents && s.documents.length > 0 ? `<button class="action-btn view" title="View Documents (${s.documents.length})" onclick="viewStudentDocuments(${globalIdx})"><i class="fas fa-file-alt"></i></button>` : ''}
+									<button class="action-btn delete" title="Delete" onclick="deleteStudent(${globalIdx})"><i class="fas fa-trash"></i></button>
+								</div>
+					</td>
+						</tr>
+					`;
+				}).join('');
+			}
+
+			document.getElementById('pageInfo').textContent = `Showing ${total > 0 ? start + 1 : 0}-${Math.min(start + pageSize, total)} of ${total} students`;
+			document.getElementById('pageNum').textContent = page;
+			document.getElementById('prevBtn').disabled = page <= 1;
+			document.getElementById('nextBtn').disabled = page >= totalPages;
+			document.getElementById('bulkDeleteBtn').disabled = selected.size === 0;
+			document.getElementById('selectAll').checked = pageData.length > 0 && pageData.every(s => selected.has(s.id));
+		}
+
+		// Inline Editing
+		document.getElementById('tableBody').addEventListener('click', function(e) {
+			const cell = e.target.closest('.editable-cell');
+			if (!cell || cell.classList.contains('editing')) return;
+
+			const idx = parseInt(cell.dataset.idx);
+			const field = cell.dataset.field;
+			const type = cell.dataset.type || 'text';
+			const currentValue = students[idx][field] || '';
+
+			cell.classList.add('editing');
+
+			if (type === 'select' && field === 'gender') {
+				cell.innerHTML = `<select><option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Male</option><option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Female</option></select>`;
+			} else if (type === 'select' && field === 'section') {
+				cell.innerHTML = `<select><option value="A" ${currentValue === 'A' ? 'selected' : ''}>A</option><option value="B" ${currentValue === 'B' ? 'selected' : ''}>B</option><option value="C" ${currentValue === 'C' ? 'selected' : ''}>C</option><option value="Science" ${currentValue === 'Science' ? 'selected' : ''}>Science</option></select>`;
+			} else if (type === 'date') {
+				const dateVal = currentValue && currentValue !== '-' ? formatDateForInput(currentValue) : '';
+				cell.innerHTML = `<input type="date" value="${dateVal}">`;
+			} else {
+				cell.innerHTML = `<input type="text" value="${currentValue === '-' ? '' : currentValue}">`;
+			}
+
+			const input = cell.querySelector('input, select');
+			input.focus();
+			if (input.select) input.select();
+
+			function saveEdit() {
+				let newValue = input.value.trim();
+				if (type === 'date' && newValue) {
+					newValue = formatDateForDisplay(newValue);
+				}
+				students[idx][field] = newValue || '-';
+				saveStudents();
+				renderTable();
+				renderStats();
+				notify('Saved!', 'success');
+			}
+
+			input.addEventListener('blur', saveEdit);
+			input.addEventListener('keydown', function(e) {
+				if (e.key === 'Enter') { input.blur(); }
+				if (e.key === 'Escape') { renderTable(); }
+			});
+		});
+
+		// Photo Upload
+		function triggerPhotoUpload(idx) {
+			currentUploadIdx = idx;
+			document.getElementById('photoUpload').click();
+		}
+
+		document.getElementById('photoUpload').addEventListener('change', function(e) {
+			const file = e.target.files[0];
+			if (!file || currentUploadIdx < 0) return;
+
+			if (file.size > 2 * 1024 * 1024) {
+				notify('Photo must be less than 2MB', 'error');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function(event) {
+				students[currentUploadIdx].photo = event.target.result;
+				saveStudents();
+				renderTable();
+				notify('Photo uploaded!', 'success');
+			};
+			reader.readAsDataURL(file);
+			e.target.value = '';
+		});
+
+		// Remove Photo
+		function removePhoto(idx) {
+			if (!confirm('Remove this photo?')) return;
+			students[idx].photo = '';
+			saveStudents();
+			renderTable();
+			notify('Photo removed!', 'success');
+		}
+
+		function formatDateForInput(dateStr) {
+			if (!dateStr || dateStr === '-') return '';
+			const parts = dateStr.split('/');
+			if (parts.length === 3) return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+			return dateStr;
+		}
+
+		function formatDateForDisplay(dateStr) {
+			if (!dateStr) return '-';
+			const d = new Date(dateStr);
+			if (isNaN(d)) return dateStr;
+			return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+		}
+
+		function toggleStatus(idx) {
+			students[idx].status = students[idx].status === 'Active' ? 'Inactive' : 'Active';
+			saveStudents();
+			renderTable();
+			renderStats();
+		}
+
+		function deleteStudent(idx) {
+			if (!confirm(`Delete "${students[idx].name}"?`)) return;
+			students.splice(idx, 1);
+			saveStudents();
+			renderTable();
+			renderStats();
+			notify('Student deleted!');
+		}
+
+		function addNewStudent() {
+			const newId = 'STU-' + new Date().getFullYear() + '-' + String(students.length + 1).padStart(3, '0');
+			students.unshift({
+				id: newId, name: 'New Student', gender: 'Male', class: '1', section: 'A',
+				parent: '', address: '', dob: '', status: 'Active', photo: ''
+			});
+			saveStudents();
+			page = 1;
+			renderTable();
+			renderStats();
+			notify('New student added! Click cells to edit.');
+		}
+
+		function exportCSV() {
+			if (!students.length) { notify('No students to export', 'error'); return; }
+			const headers = ['S.No', 'Student ID', 'Name', 'Gender', 'Class', 'Section', 'Parent', 'Address', 'DOB', 'Status'];
+			let csv = '\uFEFF' + headers.join(',') + '\n';
+			students.forEach((s, i) => {
+				csv += [i + 1, s.id, s.name, s.gender, s.class, s.section, s.parent || '', s.address || '', s.dob || '', s.status].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
+			});
+			const blob = new Blob([csv], { type: 'application/vnd.ms-excel;charset=utf-8' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = `Students_${new Date().toISOString().slice(0, 10)}.csv`;
+			link.click();
+			notify('Exported to Excel!');
+		}
+
+		// Event Listeners
+		document.getElementById('addStudentBtn').addEventListener('click', addNewStudent);
+		document.getElementById('fabAddBtn').addEventListener('click', addNewStudent);
+		document.getElementById('exportBtn').addEventListener('click', exportCSV);
+		document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+		document.getElementById('searchInput').addEventListener('input', () => { page = 1; renderTable(); });
+		document.getElementById('classFilter').addEventListener('change', () => { page = 1; renderTable(); });
+		document.getElementById('prevBtn').addEventListener('click', () => { if (page > 1) { page--; renderTable(); } });
+		document.getElementById('nextBtn').addEventListener('click', () => { page++; renderTable(); });
+		document.getElementById('pageSizeSelect').addEventListener('change', e => { pageSize = parseInt(e.target.value); page = 1; renderTable(); });
+
+		document.getElementById('selectAll').addEventListener('change', e => {
+			const search = document.getElementById('searchInput').value.toLowerCase();
+			const classFilter = document.getElementById('classFilter').value;
+			let filtered = students.filter(s => (!search || [s.id, s.name].join(' ').toLowerCase().includes(search)) && (!classFilter || s.class === classFilter));
+			const start = (page - 1) * pageSize;
+			filtered.slice(start, start + pageSize).forEach(s => { if (e.target.checked) selected.add(s.id); else selected.delete(s.id); });
+			renderTable();
+		});
+
+		document.getElementById('tableBody').addEventListener('change', e => {
+			if (e.target.classList.contains('row-check')) {
+				if (e.target.checked) selected.add(e.target.dataset.id);
+				else selected.delete(e.target.dataset.id);
+				document.getElementById('bulkDeleteBtn').disabled = selected.size === 0;
+			}
+		});
+
+		document.getElementById('bulkDeleteBtn').addEventListener('click', () => {
+			if (selected.size === 0) return;
+			if (!confirm(`Delete ${selected.size} students?`)) return;
+			students = students.filter(s => !selected.has(s.id));
+			selected.clear();
+			saveStudents();
+			renderTable();
+			renderStats();
+			notify('Deleted selected students!');
+		});
+
+		// Documents Modal
+		function viewStudentDocuments(idx) {
+			const student = students[idx];
+			if (!student || !student.documents || student.documents.length === 0) {
+				notify('No documents found for this student.', 'error');
+				return;
+			}
+			
+			const modal = document.getElementById('documentsModal');
+			const modalTitle = document.getElementById('documentsModalTitle');
+			const modalBody = document.getElementById('documentsModalBody');
+			
+			modalTitle.textContent = `${student.name} - Documents (${student.documents.length})`;
+			modalBody.innerHTML = student.documents.map((doc, i) => `
+				<div class="document-item" style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+					<div style="display:flex;align-items:center;gap:12px;flex:1;">
+						<div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;">
+							<i class="fas fa-file-${doc.type === 'application/pdf' ? 'pdf' : 'image'}"></i>
+						</div>
+						<div style="flex:1;">
+							<div style="font-weight:600;color:#1e293b;margin-bottom:4px;">${doc.name}</div>
+							<div style="font-size:12px;color:#64748b;">${formatFileSize(doc.size || 0)}</div>
+						</div>
+					</div>
+					<button class="btn btn-primary btn-sm" onclick="openDocument('${doc.data}', '${doc.type}')" style="padding:8px 16px;">
+						<i class="fas fa-eye"></i> View
+					</button>
+				</div>
+			`).join('');
+			
+			modal.style.display = 'flex';
+		}
+		
+		function formatFileSize(bytes) {
+			if (!bytes || bytes === 0) return '0 Bytes';
+			const k = 1024;
+			const sizes = ['Bytes', 'KB', 'MB'];
+			const i = Math.floor(Math.log(bytes) / Math.log(k));
+			return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+		}
+		
+		function openDocument(data, type) {
+			const newWindow = window.open();
+			if (type === 'application/pdf') {
+				newWindow.document.write(`<iframe src="${data}" style="width:100%;height:100vh;border:none;"></iframe>`);
+			} else {
+				newWindow.document.write(`<img src="${data}" style="max-width:100%;height:auto;">`);
+			}
+		}
+
+		loadStudents();
+		renderStats();
+		renderTable();
+	</script>
+
+	<!-- Documents Modal -->
+	<div id="documentsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;align-items:center;justify-content:center;">
+		<div style="background:white;border-radius:16px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+			<div style="padding:20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;">
+				<h3 id="documentsModalTitle" style="margin:0;font-size:18px;font-weight:700;color:#1e293b;">Documents</h3>
+				<button onclick="document.getElementById('documentsModal').style.display='none'" style="background:none;border:none;font-size:24px;color:#64748b;cursor:pointer;">&times;</button>
+			</div>
+			<div id="documentsModalBody" style="padding:20px;"></div>
+		</div>
+	</div>
+</body>
+</html>

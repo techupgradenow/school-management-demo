@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Timetable</title>
+	<link rel="stylesheet" href="../style.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<style>
+		/* Timetable Specific Styles */
+		.timetable-controls {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			align-items: center;
+			margin-bottom: 20px;
+			padding: 16px 20px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			border-radius: 12px;
+			box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+		}
+		.timetable-controls label {
+			color: #fff;
+			font-weight: 600;
+			font-size: 13px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.timetable-controls select {
+			height: 42px;
+			padding: 0 16px;
+			border: none;
+			border-radius: 8px;
+			font-size: 14px;
+			font-weight: 500;
+			background: rgba(255,255,255,0.95);
+			min-width: 140px;
+			cursor: pointer;
+			box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+		}
+		.timetable-controls .btn {
+			height: 42px;
+			border-radius: 8px;
+			font-weight: 600;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.timetable-controls .btn-light {
+			background: rgba(255,255,255,0.95);
+			color: #667eea;
+			border: none;
+		}
+		.timetable-controls .btn-light:hover {
+			background: #fff;
+			transform: translateY(-1px);
+		}
+
+		/* Timetable Grid */
+		.timetable-wrapper {
+			background: #fff;
+			border-radius: 16px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+			overflow: hidden;
+		}
+		.timetable-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 20px 24px;
+			background: linear-gradient(180deg, #f8fafc, #fff);
+			border-bottom: 1px solid #e2e8f0;
+		}
+		.timetable-title {
+			font-size: 18px;
+			font-weight: 700;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.timetable-title i {
+			color: #667eea;
+		}
+		.timetable-grid {
+			display: grid;
+			grid-template-columns: 100px repeat(6, 1fr);
+			border-collapse: collapse;
+		}
+		.timetable-grid .cell {
+			border: 1px solid #e2e8f0;
+			padding: 0;
+			min-height: 80px;
+			position: relative;
+		}
+		.timetable-grid .cell-header {
+			background: linear-gradient(180deg, #f1f5f9, #e2e8f0);
+			font-weight: 700;
+			font-size: 13px;
+			color: #475569;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 50px;
+		}
+		.timetable-grid .cell-time {
+			background: linear-gradient(180deg, #fafbfc, #f1f5f9);
+			font-weight: 600;
+			font-size: 12px;
+			color: #64748b;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 2px;
+			padding: 8px;
+		}
+		.timetable-grid .cell-time .period-num {
+			font-size: 11px;
+			color: #94a3b8;
+			text-transform: uppercase;
+		}
+		.timetable-grid .cell-slot {
+			cursor: pointer;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 8px;
+		}
+		.timetable-grid .cell-slot:hover {
+			background: #f8fafc;
+		}
+		.timetable-grid .cell-slot.empty {
+			background: repeating-linear-gradient(
+				45deg,
+				transparent,
+				transparent 5px,
+				#f8fafc 5px,
+				#f8fafc 10px
+			);
+		}
+		.timetable-grid .cell-slot.empty:hover {
+			background: #eff6ff;
+		}
+
+		/* Subject Card */
+		.subject-card {
+			width: 100%;
+			padding: 10px 12px;
+			border-radius: 8px;
+			text-align: center;
+			transition: all 0.2s;
+		}
+		.subject-card:hover {
+			transform: scale(1.02);
+			box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+		}
+		.subject-card .subject-name {
+			font-weight: 700;
+			font-size: 13px;
+			margin-bottom: 4px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.subject-card .teacher-name {
+			font-size: 11px;
+			opacity: 0.85;
+		}
+		.subject-card .room-info {
+			font-size: 10px;
+			opacity: 0.7;
+			margin-top: 2px;
+		}
+
+		/* Subject Colors */
+		.subject-math { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+		.subject-science { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
+		.subject-english { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+		.subject-history { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
+		.subject-geography { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; }
+		.subject-physics { background: linear-gradient(135deg, #ec4899, #db2777); color: #fff; }
+		.subject-chemistry { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; }
+		.subject-biology { background: linear-gradient(135deg, #84cc16, #65a30d); color: #fff; }
+		.subject-computer { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; }
+		.subject-pe { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; }
+		.subject-art { background: linear-gradient(135deg, #a855f7, #9333ea); color: #fff; }
+		.subject-music { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: #fff; }
+		.subject-break { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; }
+		.subject-lunch { background: linear-gradient(135deg, #fb923c, #ea580c); color: #fff; }
+		.subject-assembly { background: linear-gradient(135deg, #475569, #334155); color: #fff; }
+
+		/* Legend */
+		.legend-wrapper {
+			margin-top: 20px;
+			padding: 16px 20px;
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+		}
+		.legend-title {
+			font-weight: 600;
+			font-size: 14px;
+			color: #475569;
+			margin-bottom: 12px;
+		}
+		.legend-items {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+		}
+		.legend-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+			color: #64748b;
+		}
+		.legend-color {
+			width: 16px;
+			height: 16px;
+			border-radius: 4px;
+		}
+
+		/* Modal Styles */
+		.modal {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(15, 23, 42, 0.6);
+			backdrop-filter: blur(4px);
+			z-index: 9999;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.2s;
+		}
+		.modal.show {
+			opacity: 1;
+			visibility: visible;
+		}
+		.modal-content {
+			background: linear-gradient(180deg, #fff, #f8fafc);
+			border-radius: 16px;
+			width: 480px;
+			max-width: 95vw;
+			box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+			padding: 0;
+			animation: modalSlideIn 0.25s ease-out;
+		}
+		@keyframes modalSlideIn {
+			from { transform: translateY(-20px) scale(0.98); opacity: 0; }
+			to { transform: translateY(0) scale(1); opacity: 1; }
+		}
+		.modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 20px 24px;
+			border-bottom: 1px solid #e2e8f0;
+			background: linear-gradient(180deg, #f8fafc, #fff);
+			border-radius: 16px 16px 0 0;
+		}
+		.modal-title {
+			font-weight: 700;
+			font-size: 18px;
+			color: #1e293b;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.modal-title span {
+			width: 4px;
+			height: 20px;
+			background: linear-gradient(180deg, #667eea, #764ba2);
+			border-radius: 2px;
+		}
+		.modal-close {
+			cursor: pointer;
+			color: #94a3b8;
+			width: 36px;
+			height: 36px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 10px;
+			transition: all 0.2s;
+		}
+		.modal-close:hover {
+			color: #ef4444;
+			background: #fef2f2;
+		}
+		.modal-body {
+			padding: 24px;
+			display: grid;
+			gap: 16px;
+		}
+		.modal-body label {
+			display: block;
+			margin-bottom: 8px;
+			color: #475569;
+			font-weight: 600;
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.modal-body input,
+		.modal-body select {
+			width: 100%;
+			height: 48px;
+			border: 2px solid #e2e8f0;
+			border-radius: 12px;
+			padding: 0 16px;
+			font-size: 15px;
+			background: #fff;
+			box-sizing: border-box;
+			outline: none;
+			transition: all 0.2s;
+		}
+		.modal-body input:focus,
+		.modal-body select:focus {
+			border-color: #667eea;
+			box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+		}
+		.modal-footer {
+			display: flex;
+			justify-content: flex-end;
+			gap: 12px;
+			padding: 20px 24px;
+			background: #f8fafc;
+			border-top: 1px solid #e2e8f0;
+			border-radius: 0 0 16px 16px;
+		}
+		.modal-footer .btn {
+			min-width: 120px;
+			height: 46px;
+			padding: 0 20px;
+			border-radius: 10px;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			transition: all 0.2s;
+		}
+		.modal-footer .btn-cancel {
+			background: #fff;
+			border: 2px solid #e2e8f0;
+			color: #64748b;
+		}
+		.modal-footer .btn-cancel:hover {
+			background: #f8fafc;
+		}
+		.modal-footer .btn-save {
+			background: linear-gradient(180deg, #667eea, #764ba2);
+			border: none;
+			color: #fff;
+			box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+		}
+		.modal-footer .btn-save:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+		}
+		.modal-footer .btn-delete {
+			background: #fef2f2;
+			border: none;
+			color: #ef4444;
+			margin-right: auto;
+		}
+		.modal-footer .btn-delete:hover {
+			background: #fee2e2;
+		}
+
+		/* Print Styles */
+		@media print {
+			.timetable-controls, .legend-wrapper, .page-title button { display: none !important; }
+			.timetable-wrapper { box-shadow: none; border: 1px solid #e2e8f0; }
+		}
+
+		/* Responsive */
+		@media (max-width: 768px) {
+			.timetable-grid {
+				grid-template-columns: 70px repeat(6, 1fr);
+				font-size: 11px;
+			}
+			.subject-card {
+				padding: 6px 4px;
+			}
+			.subject-card .subject-name {
+				font-size: 10px;
+			}
+			.subject-card .teacher-name,
+			.subject-card .room-info {
+				display: none;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="page timetable-page active">
+		<div class="page-title">
+			<h1><i class="fas fa-calendar-alt" style="color: #667eea; margin-right: 10px;"></i>Timetable</h1>
+			<button class="btn btn-primary" id="addSlotBtn" style="background: linear-gradient(135deg, #667eea, #764ba2); border: none;">
+				<i class="fas fa-plus"></i> Add Period
+			</button>
+		</div>
+
+		<!-- Controls -->
+		<div class="timetable-controls">
+			<div>
+				<label>Class</label>
+				<select id="classSelect">
+					<option value="8">Class 8</option>
+					<option value="9">Class 9</option>
+					<option value="10" selected>Class 10</option>
+					<option value="11">Class 11</option>
+					<option value="12">Class 12</option>
+				</select>
+			</div>
+			<div>
+				<label>Section</label>
+				<select id="sectionSelect">
+					<option value="A" selected>Section A</option>
+					<option value="B">Section B</option>
+					<option value="C">Section C</option>
+				</select>
+			</div>
+			<div style="margin-left: auto; display: flex; gap: 10px;">
+				<button class="btn btn-light" id="printBtn">
+					<i class="fas fa-print"></i> Print
+				</button>
+				<button class="btn btn-light" id="exportBtn">
+					<i class="fas fa-download"></i> Export
+				</button>
+			</div>
+		</div>
+
+		<!-- Timetable Grid -->
+		<div class="timetable-wrapper">
+			<div class="timetable-header">
+				<div class="timetable-title">
+					<i class="fas fa-table"></i>
+					<span>Weekly Schedule - Class <span id="displayClass">10</span> <span id="displaySection">A</span></span>
+				</div>
+				<div style="font-size: 13px; color: #64748b;">
+					<i class="fas fa-clock"></i> Academic Year 2024-25
+				</div>
+			</div>
+			<div class="timetable-grid" id="timetableGrid">
+				<!-- Generated by JS -->
+			</div>
+		</div>
+
+		<!-- Legend -->
+		<div class="legend-wrapper">
+			<div class="legend-title"><i class="fas fa-palette" style="margin-right: 8px;"></i>Subject Colors</div>
+			<div class="legend-items" id="legendItems">
+				<!-- Generated by JS -->
+			</div>
+		</div>
+	</div>
+
+	<!-- Add/Edit Slot Modal -->
+	<div class="modal" id="slotModal">
+		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0; box-sizing: border-box;">
+			
+			<!-- Header -->
+			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #f8fafc, #fff); border-radius: 16px 16px 0 0;">
+				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
+					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 2px; display: inline-block;"></span>
+					<span id="modalTitle">Add Period</span>
+				</div>
+				<div id="closeModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s;">
+					<i class="fas fa-times"></i>
+				</div>
+			</div>
+			
+			<!-- Form Body -->
+			<div style="padding: 24px; display: grid; gap: 20px;">
+				<input type="hidden" id="editDay">
+				<input type="hidden" id="editPeriod">
+				
+				<!-- Subject -->
+				<div>
+					<label for="subjectSelect" style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Subject</label>
+					<select id="subjectSelect" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box; outline: none; cursor: pointer;">
+						<option value="">Select Subject</option>
+						<option value="Mathematics">📐 Mathematics</option>
+						<option value="Science">🔬 Science</option>
+						<option value="English">📚 English</option>
+						<option value="History">📜 History</option>
+						<option value="Geography">🌍 Geography</option>
+						<option value="Physics">⚛️ Physics</option>
+						<option value="Chemistry">🧪 Chemistry</option>
+						<option value="Biology">🧬 Biology</option>
+						<option value="Computer Science">💻 Computer Science</option>
+						<option value="Physical Education">🏃 Physical Education</option>
+						<option value="Art">🎨 Art</option>
+						<option value="Music">🎵 Music</option>
+						<option value="Break">☕ Break</option>
+						<option value="Lunch">🍽️ Lunch Break</option>
+						<option value="Assembly">🏫 Assembly</option>
+					</select>
+				</div>
+				
+				<!-- Teacher -->
+				<div>
+					<label for="teacherInput" style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Teacher</label>
+					<input type="text" id="teacherInput" placeholder="e.g. Mr. Sharma, Mrs. Gupta" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box; outline: none;">
+				</div>
+				
+				<!-- Room -->
+				<div>
+					<label for="roomInput" style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Room / Lab</label>
+					<input type="text" id="roomInput" placeholder="e.g. Room 101, Physics Lab, Ground" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box; outline: none;">
+				</div>
+			</div>
+			
+			<!-- Footer -->
+			<div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
+				<button id="deleteSlotBtn" style="display: none; min-width: 100px; height: 46px; padding: 0 16px; background: #fef2f2; border: none; border-radius: 10px; color: #ef4444; font-weight: 600; font-size: 14px; cursor: pointer; align-items: center; justify-content: center; gap: 8px; margin-right: auto;">
+					<i class="fas fa-trash"></i> Remove
+				</button>
+				<button id="cancelBtn" style="min-width: 120px; height: 46px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+					<i class="fas fa-times"></i> Cancel
+				</button>
+				<button id="saveSlotBtn" style="min-width: 140px; height: 46px; padding: 0 24px; background: linear-gradient(180deg, #667eea, #764ba2); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(102,126,234,0.4);">
+					<i class="fas fa-check"></i> Save Period
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// Constants
+		const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+		const PERIODS = [
+			{ num: 1, start: '08:00', end: '08:45' },
+			{ num: 2, start: '08:45', end: '09:30' },
+			{ num: 3, start: '09:30', end: '10:15' },
+			{ num: 'Break', start: '10:15', end: '10:30', isBreak: true },
+			{ num: 4, start: '10:30', end: '11:15' },
+			{ num: 5, start: '11:15', end: '12:00' },
+			{ num: 6, start: '12:00', end: '12:45' },
+			{ num: 'Lunch', start: '12:45', end: '01:30', isBreak: true },
+			{ num: 7, start: '01:30', end: '02:15' },
+			{ num: 8, start: '02:15', end: '03:00' }
+		];
+
+		const SUBJECT_COLORS = {
+			'Mathematics': 'subject-math',
+			'Science': 'subject-science',
+			'English': 'subject-english',
+			'History': 'subject-history',
+			'Geography': 'subject-geography',
+			'Physics': 'subject-physics',
+			'Chemistry': 'subject-chemistry',
+			'Biology': 'subject-biology',
+			'Computer Science': 'subject-computer',
+			'Physical Education': 'subject-pe',
+			'Art': 'subject-art',
+			'Music': 'subject-music',
+			'Break': 'subject-break',
+			'Lunch Break': 'subject-lunch',
+			'Assembly': 'subject-assembly'
+		};
+
+		const STORAGE_KEY = 'edu_timetable';
+
+		// Demo Data
+		const DEMO_DATA = {
+			'10-A': {
+				'Monday': {
+					1: { subject: 'Assembly', teacher: '', room: 'Ground' },
+					2: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					3: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' },
+					4: { subject: 'Physics', teacher: 'Mr. Verma', room: 'Physics Lab' },
+					5: { subject: 'Chemistry', teacher: 'Mrs. Patel', room: 'Chemistry Lab' },
+					6: { subject: 'History', teacher: 'Mr. Singh', room: 'Room 101' },
+					7: { subject: 'Computer Science', teacher: 'Mr. Kumar', room: 'Computer Lab' },
+					8: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' }
+				},
+				'Tuesday': {
+					1: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					2: { subject: 'Physics', teacher: 'Mr. Verma', room: 'Physics Lab' },
+					3: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' },
+					4: { subject: 'Biology', teacher: 'Mrs. Reddy', room: 'Biology Lab' },
+					5: { subject: 'Geography', teacher: 'Mr. Joshi', room: 'Room 101' },
+					6: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' },
+					7: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					8: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' }
+				},
+				'Wednesday': {
+					1: { subject: 'Science', teacher: 'Mr. Verma', room: 'Science Lab' },
+					2: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					3: { subject: 'History', teacher: 'Mr. Singh', room: 'Room 101' },
+					4: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' },
+					5: { subject: 'Chemistry', teacher: 'Mrs. Patel', room: 'Chemistry Lab' },
+					6: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' },
+					7: { subject: 'Physics', teacher: 'Mr. Verma', room: 'Physics Lab' },
+					8: { subject: 'Computer Science', teacher: 'Mr. Kumar', room: 'Computer Lab' }
+				},
+				'Thursday': {
+					1: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' },
+					2: { subject: 'Biology', teacher: 'Mrs. Reddy', room: 'Biology Lab' },
+					3: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					4: { subject: 'Geography', teacher: 'Mr. Joshi', room: 'Room 101' },
+					5: { subject: 'Physics', teacher: 'Mr. Verma', room: 'Physics Lab' },
+					6: { subject: 'History', teacher: 'Mr. Singh', room: 'Room 101' },
+					7: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' },
+					8: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' }
+				},
+				'Friday': {
+					1: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					2: { subject: 'Chemistry', teacher: 'Mrs. Patel', room: 'Chemistry Lab' },
+					3: { subject: 'Computer Science', teacher: 'Mr. Kumar', room: 'Computer Lab' },
+					4: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' },
+					5: { subject: 'Biology', teacher: 'Mrs. Reddy', room: 'Biology Lab' },
+					6: { subject: 'Physics', teacher: 'Mr. Verma', room: 'Physics Lab' },
+					7: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' },
+					8: { subject: 'Geography', teacher: 'Mr. Joshi', room: 'Room 101' }
+				},
+				'Saturday': {
+					1: { subject: 'Assembly', teacher: '', room: 'Ground' },
+					2: { subject: 'English', teacher: 'Mrs. Gupta', room: 'Room 101' },
+					3: { subject: 'Mathematics', teacher: 'Mr. Sharma', room: 'Room 101' },
+					4: { subject: 'Science', teacher: 'Mr. Verma', room: 'Science Lab' },
+					5: { subject: 'History', teacher: 'Mr. Singh', room: 'Room 101' },
+					6: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' },
+					7: { subject: 'Computer Science', teacher: 'Mr. Kumar', room: 'Computer Lab' },
+					8: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' }
+				}
+			},
+			'10-B': {
+				'Monday': {
+					1: { subject: 'Assembly', teacher: '', room: 'Ground' },
+					2: { subject: 'English', teacher: 'Mrs. Kapoor', room: 'Room 102' },
+					3: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' },
+					4: { subject: 'Chemistry', teacher: 'Mr. Saxena', room: 'Chemistry Lab' },
+					5: { subject: 'Biology', teacher: 'Mrs. Nair', room: 'Biology Lab' },
+					6: { subject: 'Geography', teacher: 'Mrs. Bose', room: 'Room 102' },
+					7: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' },
+					8: { subject: 'Computer Science', teacher: 'Ms. Sharma', room: 'Computer Lab' }
+				},
+				'Tuesday': {
+					1: { subject: 'Physics', teacher: 'Mr. Das', room: 'Physics Lab' },
+					2: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' },
+					3: { subject: 'History', teacher: 'Mr. Pillai', room: 'Room 102' },
+					4: { subject: 'English', teacher: 'Mrs. Kapoor', room: 'Room 102' },
+					5: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' },
+					6: { subject: 'Chemistry', teacher: 'Mr. Saxena', room: 'Chemistry Lab' },
+					7: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' },
+					8: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' }
+				},
+				'Wednesday': {
+					1: { subject: 'English', teacher: 'Mrs. Kapoor', room: 'Room 102' },
+					2: { subject: 'Biology', teacher: 'Mrs. Nair', room: 'Biology Lab' },
+					3: { subject: 'Physics', teacher: 'Mr. Das', room: 'Physics Lab' },
+					4: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' },
+					5: { subject: 'History', teacher: 'Mr. Pillai', room: 'Room 102' },
+					6: { subject: 'Computer Science', teacher: 'Ms. Sharma', room: 'Computer Lab' },
+					7: { subject: 'Geography', teacher: 'Mrs. Bose', room: 'Room 102' },
+					8: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' }
+				},
+				'Thursday': {
+					1: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' },
+					2: { subject: 'Chemistry', teacher: 'Mr. Saxena', room: 'Chemistry Lab' },
+					3: { subject: 'English', teacher: 'Mrs. Kapoor', room: 'Room 102' },
+					4: { subject: 'Physics', teacher: 'Mr. Das', room: 'Physics Lab' },
+					5: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' },
+					6: { subject: 'Biology', teacher: 'Mrs. Nair', room: 'Biology Lab' },
+					7: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' },
+					8: { subject: 'History', teacher: 'Mr. Pillai', room: 'Room 102' }
+				},
+				'Friday': {
+					1: { subject: 'Science', teacher: 'Mr. Das', room: 'Science Lab' },
+					2: { subject: 'English', teacher: 'Mrs. Kapoor', room: 'Room 102' },
+					3: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' },
+					4: { subject: 'Geography', teacher: 'Mrs. Bose', room: 'Room 102' },
+					5: { subject: 'Computer Science', teacher: 'Ms. Sharma', room: 'Computer Lab' },
+					6: { subject: 'Chemistry', teacher: 'Mr. Saxena', room: 'Chemistry Lab' },
+					7: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' },
+					8: { subject: 'Biology', teacher: 'Mrs. Nair', room: 'Biology Lab' }
+				},
+				'Saturday': {
+					1: { subject: 'Assembly', teacher: '', room: 'Ground' },
+					2: { subject: 'Mathematics', teacher: 'Mr. Agarwal', room: 'Room 102' },
+					3: { subject: 'Physics', teacher: 'Mr. Das', room: 'Physics Lab' },
+					4: { subject: 'English', teacher: 'Mrs. Kapoor', room: 'Room 102' },
+					5: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' },
+					6: { subject: 'History', teacher: 'Mr. Pillai', room: 'Room 102' },
+					7: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' },
+					8: { subject: 'Computer Science', teacher: 'Ms. Sharma', room: 'Computer Lab' }
+				}
+			},
+			'10-C': {
+				'Monday': {
+					1: { subject: 'Assembly', teacher: '', room: 'Ground' },
+					2: { subject: 'Physics', teacher: 'Mrs. Iyer', room: 'Physics Lab' },
+					3: { subject: 'English', teacher: 'Mr. Thomas', room: 'Room 103' },
+					4: { subject: 'Mathematics', teacher: 'Mrs. Desai', room: 'Room 103' },
+					5: { subject: 'History', teacher: 'Mr. Menon', room: 'Room 103' },
+					6: { subject: 'Chemistry', teacher: 'Mr. Khan', room: 'Chemistry Lab' },
+					7: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' },
+					8: { subject: 'Biology', teacher: 'Mrs. George', room: 'Biology Lab' }
+				},
+				'Tuesday': {
+					1: { subject: 'Mathematics', teacher: 'Mrs. Desai', room: 'Room 103' },
+					2: { subject: 'English', teacher: 'Mr. Thomas', room: 'Room 103' },
+					3: { subject: 'Computer Science', teacher: 'Mr. Rajan', room: 'Computer Lab' },
+					4: { subject: 'Physics', teacher: 'Mrs. Iyer', room: 'Physics Lab' },
+					5: { subject: 'Geography', teacher: 'Mrs. Shetty', room: 'Room 103' },
+					6: { subject: 'Biology', teacher: 'Mrs. George', room: 'Biology Lab' },
+					7: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' },
+					8: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' }
+				},
+				'Wednesday': {
+					1: { subject: 'Chemistry', teacher: 'Mr. Khan', room: 'Chemistry Lab' },
+					2: { subject: 'Mathematics', teacher: 'Mrs. Desai', room: 'Room 103' },
+					3: { subject: 'Biology', teacher: 'Mrs. George', room: 'Biology Lab' },
+					4: { subject: 'English', teacher: 'Mr. Thomas', room: 'Room 103' },
+					5: { subject: 'Physics', teacher: 'Mrs. Iyer', room: 'Physics Lab' },
+					6: { subject: 'History', teacher: 'Mr. Menon', room: 'Room 103' },
+					7: { subject: 'Computer Science', teacher: 'Mr. Rajan', room: 'Computer Lab' },
+					8: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' }
+				},
+				'Thursday': {
+					1: { subject: 'English', teacher: 'Mr. Thomas', room: 'Room 103' },
+					2: { subject: 'Physics', teacher: 'Mrs. Iyer', room: 'Physics Lab' },
+					3: { subject: 'Mathematics', teacher: 'Mrs. Desai', room: 'Room 103' },
+					4: { subject: 'Chemistry', teacher: 'Mr. Khan', room: 'Chemistry Lab' },
+					5: { subject: 'Computer Science', teacher: 'Mr. Rajan', room: 'Computer Lab' },
+					6: { subject: 'Geography', teacher: 'Mrs. Shetty', room: 'Room 103' },
+					7: { subject: 'Music', teacher: 'Mr. Roy', room: 'Music Room' },
+					8: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' }
+				},
+				'Friday': {
+					1: { subject: 'Biology', teacher: 'Mrs. George', room: 'Biology Lab' },
+					2: { subject: 'Chemistry', teacher: 'Mr. Khan', room: 'Chemistry Lab' },
+					3: { subject: 'English', teacher: 'Mr. Thomas', room: 'Room 103' },
+					4: { subject: 'Mathematics', teacher: 'Mrs. Desai', room: 'Room 103' },
+					5: { subject: 'History', teacher: 'Mr. Menon', room: 'Room 103' },
+					6: { subject: 'Physics', teacher: 'Mrs. Iyer', room: 'Physics Lab' },
+					7: { subject: 'Art', teacher: 'Ms. Mehra', room: 'Art Room' },
+					8: { subject: 'Geography', teacher: 'Mrs. Shetty', room: 'Room 103' }
+				},
+				'Saturday': {
+					1: { subject: 'Assembly', teacher: '', room: 'Ground' },
+					2: { subject: 'English', teacher: 'Mr. Thomas', room: 'Room 103' },
+					3: { subject: 'Chemistry', teacher: 'Mr. Khan', room: 'Chemistry Lab' },
+					4: { subject: 'Mathematics', teacher: 'Mrs. Desai', room: 'Room 103' },
+					5: { subject: 'Biology', teacher: 'Mrs. George', room: 'Biology Lab' },
+					6: { subject: 'Computer Science', teacher: 'Mr. Rajan', room: 'Computer Lab' },
+					7: { subject: 'Physical Education', teacher: 'Mr. Yadav', room: 'Ground' },
+					8: { subject: 'History', teacher: 'Mr. Menon', room: 'Room 103' }
+				}
+			}
+		};
+
+		// DOM Elements
+		const classSelect = document.getElementById('classSelect');
+		const sectionSelect = document.getElementById('sectionSelect');
+		const timetableGrid = document.getElementById('timetableGrid');
+		const displayClass = document.getElementById('displayClass');
+		const displaySection = document.getElementById('displaySection');
+		const legendItems = document.getElementById('legendItems');
+		const slotModal = document.getElementById('slotModal');
+		const modalTitle = document.getElementById('modalTitle');
+		const closeModal = document.getElementById('closeModal');
+		const cancelBtn = document.getElementById('cancelBtn');
+		const saveSlotBtn = document.getElementById('saveSlotBtn');
+		const deleteSlotBtn = document.getElementById('deleteSlotBtn');
+		const addSlotBtn = document.getElementById('addSlotBtn');
+		const printBtn = document.getElementById('printBtn');
+		const exportBtn = document.getElementById('exportBtn');
+
+		// Load/Save Data
+		function loadTimetableData() {
+			try {
+				const saved = localStorage.getItem(STORAGE_KEY);
+				if (saved) {
+					const data = JSON.parse(saved);
+					// Merge with demo data - demo data fills in missing sections
+					return { ...DEMO_DATA, ...data };
+				}
+			} catch (e) {}
+			// Return demo data if no saved data
+			return DEMO_DATA;
+		}
+		
+		// Reset to demo data
+		function resetTimetableData() {
+			localStorage.removeItem(STORAGE_KEY);
+			renderTimetable();
+		}
+
+		function saveTimetableData(data) {
+			localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+		}
+
+		// Render Functions
+		function renderTimetable() {
+			const cls = classSelect.value;
+			const sec = sectionSelect.value;
+			const key = `${cls}-${sec}`;
+			const data = loadTimetableData();
+			const schedule = data[key] || {};
+
+			displayClass.textContent = cls;
+			displaySection.textContent = sec;
+
+			let html = '';
+
+			// Header row
+			html += '<div class="cell cell-header">Time</div>';
+			DAYS.forEach(day => {
+				html += `<div class="cell cell-header">${day}</div>`;
+			});
+
+			// Period rows
+			PERIODS.forEach(period => {
+				// Time cell
+				if (period.isBreak) {
+					html += `
+						<div class="cell cell-time" style="background: linear-gradient(180deg, #fef3c7, #fde68a);">
+							<div class="period-num">${period.num}</div>
+							<div>${period.start}</div>
+							<div style="font-size: 10px;">to ${period.end}</div>
+						</div>`;
+				} else {
+					html += `
+						<div class="cell cell-time">
+							<div class="period-num">Period ${period.num}</div>
+							<div>${period.start}</div>
+							<div style="font-size: 10px;">to ${period.end}</div>
+						</div>`;
+				}
+
+				// Day cells
+				DAYS.forEach(day => {
+					if (period.isBreak) {
+						const breakType = period.num === 'Lunch' ? 'Lunch Break' : 'Break';
+						const colorClass = period.num === 'Lunch' ? 'subject-lunch' : 'subject-break';
+						html += `
+							<div class="cell cell-slot" style="background: linear-gradient(180deg, #fef3c7, #fde68a);">
+								<div class="subject-card ${colorClass}">
+									<div class="subject-name">${breakType}</div>
+								</div>
+							</div>`;
+					} else {
+						const slot = schedule[day] && schedule[day][period.num];
+						if (slot && slot.subject) {
+							const colorClass = SUBJECT_COLORS[slot.subject] || 'subject-math';
+							html += `
+								<div class="cell cell-slot" data-day="${day}" data-period="${period.num}">
+									<div class="subject-card ${colorClass}">
+										<div class="subject-name">${slot.subject}</div>
+										${slot.teacher ? `<div class="teacher-name">${slot.teacher}</div>` : ''}
+										${slot.room ? `<div class="room-info">${slot.room}</div>` : ''}
+									</div>
+								</div>`;
+						} else {
+							html += `
+								<div class="cell cell-slot empty" data-day="${day}" data-period="${period.num}">
+									<i class="fas fa-plus" style="color: #cbd5e1; font-size: 16px;"></i>
+								</div>`;
+						}
+					}
+				});
+			});
+
+			timetableGrid.innerHTML = html;
+			renderLegend();
+			attachSlotListeners();
+		}
+
+		function renderLegend() {
+			const items = Object.entries(SUBJECT_COLORS)
+				.filter(([name]) => !['Break', 'Lunch Break', 'Assembly'].includes(name))
+				.map(([name, colorClass]) => `
+					<div class="legend-item">
+						<div class="legend-color ${colorClass}"></div>
+						<span>${name}</span>
+					</div>
+				`).join('');
+			legendItems.innerHTML = items;
+		}
+
+		function attachSlotListeners() {
+			document.querySelectorAll('.cell-slot[data-day]').forEach(cell => {
+				cell.addEventListener('click', () => {
+					const day = cell.dataset.day;
+					const period = cell.dataset.period;
+					openModal(day, period);
+				});
+			});
+		}
+
+		// Modal Functions
+		function openModal(day, period) {
+			const cls = classSelect.value;
+			const sec = sectionSelect.value;
+			const key = `${cls}-${sec}`;
+			const data = loadTimetableData();
+			const slot = data[key]?.[day]?.[period];
+
+			document.getElementById('editDay').value = day;
+			document.getElementById('editPeriod').value = period;
+
+			if (slot && slot.subject) {
+				modalTitle.textContent = 'Edit Period';
+				document.getElementById('subjectSelect').value = slot.subject;
+				document.getElementById('teacherInput').value = slot.teacher || '';
+				document.getElementById('roomInput').value = slot.room || '';
+				deleteSlotBtn.style.display = 'flex';
+			} else {
+				modalTitle.textContent = 'Add Period';
+				document.getElementById('subjectSelect').value = '';
+				document.getElementById('teacherInput').value = '';
+				document.getElementById('roomInput').value = '';
+				deleteSlotBtn.style.display = 'none';
+			}
+
+			slotModal.classList.add('show');
+		}
+
+		function closeModalFn() {
+			slotModal.classList.remove('show');
+		}
+
+		function saveSlot() {
+			const day = document.getElementById('editDay').value;
+			const period = document.getElementById('editPeriod').value;
+			const subject = document.getElementById('subjectSelect').value;
+			const teacher = document.getElementById('teacherInput').value.trim();
+			const room = document.getElementById('roomInput').value.trim();
+
+			if (!subject) {
+				notify('Please select a subject', 'error');
+				return;
+			}
+
+			const cls = classSelect.value;
+			const sec = sectionSelect.value;
+			const key = `${cls}-${sec}`;
+			const data = loadTimetableData();
+
+			if (!data[key]) data[key] = {};
+			if (!data[key][day]) data[key][day] = {};
+			data[key][day][period] = { subject, teacher, room };
+
+			saveTimetableData(data);
+			closeModalFn();
+			renderTimetable();
+			notify('Period saved successfully', 'success');
+		}
+
+		function deleteSlot() {
+			const day = document.getElementById('editDay').value;
+			const period = document.getElementById('editPeriod').value;
+			const cls = classSelect.value;
+			const sec = sectionSelect.value;
+			const key = `${cls}-${sec}`;
+			const data = loadTimetableData();
+
+			if (data[key]?.[day]?.[period]) {
+				delete data[key][day][period];
+				saveTimetableData(data);
+				closeModalFn();
+				renderTimetable();
+				notify('Period removed', 'success');
+			}
+		}
+
+		function notify(msg, type = 'success') {
+			if (window.parent && typeof window.parent.showNotification === 'function') {
+				window.parent.showNotification(msg, type);
+			} else {
+				alert(msg);
+			}
+		}
+
+		// Export/Print
+		function exportTimetable() {
+			const cls = classSelect.value;
+			const sec = sectionSelect.value;
+			const key = `${cls}-${sec}`;
+			const data = loadTimetableData();
+			const schedule = data[key] || {};
+
+			let csv = 'Time,' + DAYS.join(',') + '\n';
+			PERIODS.forEach(period => {
+				if (period.isBreak) {
+					csv += `${period.start}-${period.end},` + DAYS.map(() => period.num === 'Lunch' ? 'Lunch Break' : 'Break').join(',') + '\n';
+				} else {
+					const row = [period.start + '-' + period.end];
+					DAYS.forEach(day => {
+						const slot = schedule[day]?.[period.num];
+						row.push(slot ? `${slot.subject} (${slot.teacher || 'N/A'})` : '-');
+					});
+					csv += row.join(',') + '\n';
+				}
+			});
+
+			const blob = new Blob([csv], { type: 'text/csv' });
+			const a = document.createElement('a');
+			a.href = URL.createObjectURL(blob);
+			a.download = `timetable_class${cls}_${sec}.csv`;
+			a.click();
+		}
+
+		// Event Listeners
+		classSelect.addEventListener('change', renderTimetable);
+		sectionSelect.addEventListener('change', renderTimetable);
+		closeModal.addEventListener('click', closeModalFn);
+		cancelBtn.addEventListener('click', closeModalFn);
+		saveSlotBtn.addEventListener('click', saveSlot);
+		deleteSlotBtn.addEventListener('click', deleteSlot);
+		printBtn.addEventListener('click', () => window.print());
+		exportBtn.addEventListener('click', exportTimetable);
+		addSlotBtn.addEventListener('click', () => {
+			notify('Click on any empty cell in the timetable to add a period', 'info');
+		});
+		window.addEventListener('click', (e) => {
+			if (e.target === slotModal) closeModalFn();
+		});
+
+		// Initialize
+		document.addEventListener('DOMContentLoaded', renderTimetable);
+	</script>
+</body>
+</html>
