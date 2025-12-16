@@ -2857,7 +2857,18 @@
 
 		function deleteStudent() {
 			const id = document.getElementById('editStudentId').value;
-			if (!confirm('Are you sure you want to delete this student?')) return;
+			const name = document.getElementById('editStudentName').value || 'this student';
+			
+			const confirmMessage = `⚠️ Are you sure you want to delete "${name}" (${id})?\n\n` +
+				`This action cannot be undone and will permanently remove:\n` +
+				`• Student record\n` +
+				`• All associated data (attendance, marks, etc.)\n\n` +
+				`Click OK to confirm deletion, or Cancel to abort.`;
+			
+			if (!confirm(confirmMessage)) {
+				notify('Deletion cancelled', 'info');
+				return;
+			}
 			
 			let students = JSON.parse(localStorage.getItem('edu_students') || '[]');
 			students = students.filter(function(s) { return s.id !== id; });
@@ -2866,19 +2877,31 @@
 			closeStudentEditModal();
 			renderRecentStudents();
 			updateStats();
-			notify('🗑️ Student deleted', 'info');
+			notify(`Student "${name}" deleted successfully!`, 'success');
 		}
 
 		function quickDeleteStudent(studentId) {
-			if (!confirm('Delete this student?')) return;
-			
 			let students = JSON.parse(localStorage.getItem('edu_students') || '[]');
+			const student = students.find(function(s) { return s.id === studentId; });
+			const studentName = student ? student.name : 'this student';
+			
+			const confirmMessage = `⚠️ Are you sure you want to delete "${studentName}" (${studentId})?\n\n` +
+				`This action cannot be undone and will permanently remove:\n` +
+				`• Student record\n` +
+				`• All associated data\n\n` +
+				`Click OK to confirm deletion, or Cancel to abort.`;
+			
+			if (!confirm(confirmMessage)) {
+				notify('Deletion cancelled', 'info');
+				return;
+			}
+			
 			students = students.filter(function(s) { return s.id !== studentId; });
 			localStorage.setItem('edu_students', JSON.stringify(students));
 			
 			renderRecentStudents();
 			updateStats();
-			notify('🗑️ Student deleted', 'info');
+			notify(`Student "${studentName}" deleted successfully!`, 'success');
 		}
 
 		function addQuickStudent() {

@@ -225,156 +225,514 @@
 			border-radius: 4px;
 		}
 
-		/* Modal Styles */
+		/* Modern Modal Styles with Collapse */
 		.modal {
 			position: fixed;
 			inset: 0;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			background: rgba(15, 23, 42, 0.6);
-			backdrop-filter: blur(4px);
+			background: rgba(15, 23, 42, 0.75);
+			backdrop-filter: blur(8px);
+			-webkit-backdrop-filter: blur(8px);
 			z-index: 9999;
 			opacity: 0;
 			visibility: hidden;
-			transition: all 0.2s;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			padding: 20px;
 		}
 		.modal.show {
 			opacity: 1;
 			visibility: visible;
 		}
+		.modal.closing {
+			opacity: 0;
+		}
 		.modal-content {
-			background: linear-gradient(180deg, #fff, #f8fafc);
-			border-radius: 16px;
-			width: 480px;
-			max-width: 95vw;
-			box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+			background: #ffffff;
+			border-radius: 24px;
+			width: 520px;
+			max-width: 100%;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
 			padding: 0;
-			animation: modalSlideIn 0.25s ease-out;
+			transform-origin: center;
+			overflow: hidden;
+			position: relative;
+			max-height: 90vh;
+			display: flex;
+			flex-direction: column;
+		}
+		.modal.show .modal-content {
+			animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		.modal.closing .modal-content {
+			animation: modalCollapse 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		.modal-content::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 4px;
+			background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+			background-size: 200% 100%;
+			animation: shimmer 3s linear infinite;
+			z-index: 1;
+		}
+		@keyframes shimmer {
+			0% { background-position: 200% 0; }
+			100% { background-position: -200% 0; }
 		}
 		@keyframes modalSlideIn {
-			from { transform: translateY(-20px) scale(0.98); opacity: 0; }
-			to { transform: translateY(0) scale(1); opacity: 1; }
+			from { 
+				transform: translateY(-30px) scale(0.95); 
+				opacity: 0; 
+			}
+			to { 
+				transform: translateY(0) scale(1); 
+				opacity: 1; 
+			}
+		}
+		@keyframes modalCollapse {
+			0% { 
+				transform: translateY(0) scale(1); 
+				opacity: 1;
+				max-height: 90vh;
+			}
+			50% {
+				transform: translateY(20px) scale(0.98);
+				opacity: 0.8;
+			}
+			100% { 
+				transform: translateY(50px) scale(0.92); 
+				opacity: 0;
+				max-height: 0;
+			}
 		}
 		.modal-header {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			padding: 20px 24px;
-			border-bottom: 1px solid #e2e8f0;
-			background: linear-gradient(180deg, #f8fafc, #fff);
-			border-radius: 16px 16px 0 0;
+			padding: 28px 32px 24px;
+			background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+			border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+			position: relative;
+			flex-shrink: 0;
+		}
+		.modal-header::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 32px;
+			right: 32px;
+			height: 1px;
+			background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
 		}
 		.modal-title {
 			font-weight: 700;
-			font-size: 18px;
+			font-size: 22px;
 			color: #1e293b;
 			display: flex;
 			align-items: center;
-			gap: 10px;
+			gap: 12px;
+			letter-spacing: -0.02em;
 		}
 		.modal-title span {
-			width: 4px;
-			height: 20px;
+			width: 5px;
+			height: 24px;
 			background: linear-gradient(180deg, #667eea, #764ba2);
-			border-radius: 2px;
+			border-radius: 3px;
+			box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 		}
 		.modal-close {
 			cursor: pointer;
-			color: #94a3b8;
-			width: 36px;
-			height: 36px;
+			color: #64748b;
+			width: 40px;
+			height: 40px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border-radius: 10px;
-			transition: all 0.2s;
+			border-radius: 12px;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+			background: transparent;
+			border: 2px solid transparent;
 		}
 		.modal-close:hover {
 			color: #ef4444;
 			background: #fef2f2;
+			border-color: #fecaca;
+			transform: rotate(90deg);
+		}
+		.modal-close:active {
+			transform: rotate(90deg) scale(0.95);
 		}
 		.modal-body {
-			padding: 24px;
+			padding: 32px;
 			display: grid;
-			gap: 16px;
+			gap: 24px;
+			background: #ffffff;
+			overflow-y: auto;
+			flex: 1;
+			min-height: 0;
 		}
 		.modal-body label {
-			display: block;
-			margin-bottom: 8px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			margin-bottom: 10px;
 			color: #475569;
-			font-weight: 600;
+			font-weight: 700;
 			font-size: 12px;
 			text-transform: uppercase;
-			letter-spacing: 0.5px;
+			letter-spacing: 0.8px;
+		}
+		.modal-body label .required {
+			color: #ef4444;
+			font-size: 14px;
 		}
 		.modal-body input,
 		.modal-body select {
 			width: 100%;
-			height: 48px;
+			height: 52px;
 			border: 2px solid #e2e8f0;
-			border-radius: 12px;
-			padding: 0 16px;
+			border-radius: 14px;
+			padding: 0 18px;
 			font-size: 15px;
-			background: #fff;
+			font-weight: 500;
+			background: #ffffff;
+			color: #1e293b;
 			box-sizing: border-box;
 			outline: none;
-			transition: all 0.2s;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			cursor: pointer;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+		}
+		.modal-body input:hover,
+		.modal-body select:hover {
+			border-color: #cbd5e1;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 		}
 		.modal-body input:focus,
 		.modal-body select:focus {
 			border-color: #667eea;
-			box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+			box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.12), 0 4px 12px rgba(102, 126, 234, 0.15);
+			transform: translateY(-1px);
+		}
+		.modal-body input[type="text"] {
+			cursor: text;
+		}
+		.modal-body input::placeholder {
+			color: #94a3b8;
+			font-weight: 400;
+		}
+		.modal-body select {
+			appearance: none;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 18px center;
+			padding-right: 45px;
+		}
+		.modal-body select option[data-add-subject="true"] {
+			background: linear-gradient(135deg, #eff6ff, #dbeafe);
+			color: #667eea;
+			font-weight: 700;
+			padding: 12px;
+		}
+		.modal-body select option[data-custom="true"] {
+			font-weight: 500;
 		}
 		.modal-footer {
 			display: flex;
 			justify-content: flex-end;
+			align-items: center;
 			gap: 12px;
-			padding: 20px 24px;
-			background: #f8fafc;
-			border-top: 1px solid #e2e8f0;
-			border-radius: 0 0 16px 16px;
+			padding: 24px 32px;
+			background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+			border-top: 1px solid rgba(226, 232, 240, 0.8);
+			position: relative;
+			flex-shrink: 0;
+		}
+		.modal-footer::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 32px;
+			right: 32px;
+			height: 1px;
+			background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
 		}
 		.modal-footer .btn {
-			min-width: 120px;
-			height: 46px;
-			padding: 0 20px;
-			border-radius: 10px;
-			font-weight: 600;
+			min-width: 130px;
+			height: 48px;
+			padding: 0 24px;
+			border-radius: 12px;
+			font-weight: 700;
 			font-size: 14px;
 			cursor: pointer;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			gap: 8px;
-			transition: all 0.2s;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			border: none;
+			letter-spacing: 0.3px;
 		}
 		.modal-footer .btn-cancel {
-			background: #fff;
+			background: #ffffff;
 			border: 2px solid #e2e8f0;
 			color: #64748b;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 		}
 		.modal-footer .btn-cancel:hover {
 			background: #f8fafc;
+			border-color: #cbd5e1;
+			color: #475569;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 		}
 		.modal-footer .btn-save {
-			background: linear-gradient(180deg, #667eea, #764ba2);
-			border: none;
-			color: #fff;
-			box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: #ffffff;
+			box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4), 0 2px 4px rgba(102, 126, 234, 0.2);
 		}
 		.modal-footer .btn-save:hover {
-			transform: translateY(-1px);
-			box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+			transform: translateY(-2px);
+			box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5), 0 4px 8px rgba(102, 126, 234, 0.3);
+		}
+		.modal-footer .btn-save:active {
+			transform: translateY(0);
 		}
 		.modal-footer .btn-delete {
-			background: #fef2f2;
-			border: none;
-			color: #ef4444;
+			background: linear-gradient(135deg, #fee2e2, #fecaca);
+			border: 2px solid #fca5a5;
+			color: #dc2626;
 			margin-right: auto;
+			box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
 		}
 		.modal-footer .btn-delete:hover {
-			background: #fee2e2;
+			background: linear-gradient(135deg, #fecaca, #fca5a5);
+			border-color: #f87171;
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+		}
+		
+		/* Add Subject Option in Dropdown */
+		.subject-select-wrapper {
+			position: relative;
+		}
+		.add-subject-option {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 16px;
+			margin-top: 4px;
+			border-top: 2px dashed #e2e8f0;
+			color: #667eea;
+			font-weight: 600;
+			font-size: 14px;
+			cursor: pointer;
+			transition: all 0.2s;
+			border-radius: 0 0 12px 12px;
+		}
+		.add-subject-option:hover {
+			background: #eff6ff;
+			color: #764ba2;
+		}
+		.add-subject-option i {
+			font-size: 16px;
+		}
+
+		/* Add Subject Modal */
+		.add-subject-modal {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: rgba(15, 23, 42, 0.85);
+			backdrop-filter: blur(8px);
+			z-index: 10000;
+			opacity: 0;
+			visibility: hidden;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		.add-subject-modal.show {
+			opacity: 1;
+			visibility: visible;
+		}
+		.add-subject-modal.closing {
+			opacity: 0;
+		}
+		.add-subject-content {
+			background: #ffffff;
+			border-radius: 16px;
+			width: 360px;
+			max-width: 90%;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+			overflow: hidden;
+			position: relative;
+		}
+		.add-subject-modal.show .add-subject-content {
+			animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		.add-subject-modal.closing .add-subject-content {
+			animation: modalCollapse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+		.add-subject-header {
+			padding: 16px 20px;
+			background: linear-gradient(135deg, #667eea, #764ba2);
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		.add-subject-header h3 {
+			font-size: 16px;
+			font-weight: 700;
+			margin: 0;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.add-subject-close {
+			width: 28px;
+			height: 28px;
+			border-radius: 6px;
+			background: rgba(255, 255, 255, 0.2);
+			border: none;
+			color: white;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s;
+			font-size: 14px;
+		}
+		.add-subject-close:hover {
+			background: rgba(255, 255, 255, 0.3);
+			transform: rotate(90deg);
+		}
+		.add-subject-body {
+			padding: 20px;
+		}
+		.icon-selector {
+			display: grid;
+			grid-template-columns: repeat(6, 1fr);
+			gap: 6px;
+			margin-top: 10px;
+			max-height: 160px;
+			overflow-y: auto;
+			padding: 6px;
+			background: #f8fafc;
+			border-radius: 10px;
+			border: 2px solid #e2e8f0;
+		}
+		@media (max-width: 640px) {
+			.icon-selector {
+				grid-template-columns: repeat(4, 1fr);
+			}
+		}
+		.icon-option {
+			width: 100%;
+			aspect-ratio: 1;
+			border: 2px solid #e2e8f0;
+			border-radius: 8px;
+			background: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+			transition: all 0.2s;
+			font-size: 18px;
+		}
+		.icon-option:hover {
+			border-color: #667eea;
+			background: #eff6ff;
+			transform: scale(1.1);
+		}
+		.icon-option.selected {
+			border-color: #667eea;
+			background: linear-gradient(135deg, #667eea, #764ba2);
+			color: white;
+			box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+		}
+		.icon-upload-area {
+			border: 2px dashed #cbd5e1;
+			border-radius: 10px;
+			padding: 16px;
+			text-align: center;
+			cursor: pointer;
+			transition: all 0.2s;
+			background: #f8fafc;
+			margin-top: 10px;
+		}
+		.icon-upload-area:hover {
+			border-color: #667eea;
+			background: #eff6ff;
+		}
+		.icon-upload-area.has-icon {
+			border-style: solid;
+			border-color: #667eea;
+			background: white;
+		}
+		.icon-preview {
+			width: 50px;
+			height: 50px;
+			margin: 0 auto 10px;
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 28px;
+			background: linear-gradient(135deg, #667eea, #764ba2);
+			color: white;
+		}
+		.icon-preview img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			border-radius: 12px;
+		}
+
+		/* Responsive Modal */
+		@media (max-width: 640px) {
+			.modal {
+				padding: 12px;
+			}
+			.modal-content {
+				width: 100%;
+				border-radius: 20px;
+			}
+			.modal-header {
+				padding: 24px 20px 20px;
+			}
+			.modal-title {
+				font-size: 20px;
+			}
+			.modal-body {
+				padding: 24px 20px;
+				gap: 20px;
+			}
+			.modal-footer {
+				padding: 20px;
+				flex-wrap: wrap;
+			}
+			.modal-footer .btn {
+				flex: 1;
+				min-width: auto;
+			}
+			.modal-footer .btn-delete {
+				width: 100%;
+				margin-right: 0;
+				margin-bottom: 8px;
+			}
+			.add-subject-content {
+				width: 95%;
+			}
+			.icon-selector {
+				grid-template-columns: repeat(5, 1fr);
+			}
 		}
 
 		/* Print Styles */
@@ -468,28 +826,66 @@
 
 	<!-- Add/Edit Slot Modal -->
 	<div class="modal" id="slotModal">
-		<div class="modal-content" style="background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; width: 520px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); padding: 0; box-sizing: border-box;">
-			
+		<div class="modal-content">
 			<!-- Header -->
-			<div style="display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid #e2e8f0; background: linear-gradient(180deg, #f8fafc, #fff); border-radius: 16px 16px 0 0;">
-				<div style="font-weight: 700; font-size: 18px; color: #1e293b; display: flex; align-items: center; gap: 10px;">
-					<span style="width: 4px; height: 20px; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 2px; display: inline-block;"></span>
+			<div class="modal-header">
+				<div class="modal-title">
+					<span></span>
 					<span id="modalTitle">Add Period</span>
 				</div>
-				<div id="closeModal" style="cursor: pointer; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s;">
+				<div id="closeModal" class="modal-close">
 					<i class="fas fa-times"></i>
 				</div>
 			</div>
 			
 			<!-- Form Body -->
-			<div style="padding: 24px; display: grid; gap: 20px;">
+			<div class="modal-body">
 				<input type="hidden" id="editDay">
 				<input type="hidden" id="editPeriod">
 				
+				<!-- Day Selection -->
+				<div id="daySelectContainer">
+					<label for="daySelect">
+						<i class="fas fa-calendar-day" style="font-size: 11px;"></i>
+						Day <span class="required">*</span>
+					</label>
+					<select id="daySelect">
+						<option value="">Select Day</option>
+						<option value="Monday">Monday</option>
+						<option value="Tuesday">Tuesday</option>
+						<option value="Wednesday">Wednesday</option>
+						<option value="Thursday">Thursday</option>
+						<option value="Friday">Friday</option>
+						<option value="Saturday">Saturday</option>
+					</select>
+				</div>
+				
+				<!-- Period Selection -->
+				<div id="periodSelectContainer">
+					<label for="periodSelect">
+						<i class="fas fa-clock" style="font-size: 11px;"></i>
+						Period <span class="required">*</span>
+					</label>
+					<select id="periodSelect">
+						<option value="">Select Period</option>
+						<option value="1">Period 1 (08:00 - 08:45)</option>
+						<option value="2">Period 2 (08:45 - 09:30)</option>
+						<option value="3">Period 3 (09:30 - 10:15)</option>
+						<option value="4">Period 4 (10:30 - 11:15)</option>
+						<option value="5">Period 5 (11:15 - 12:00)</option>
+						<option value="6">Period 6 (12:00 - 12:45)</option>
+						<option value="7">Period 7 (01:30 - 02:15)</option>
+						<option value="8">Period 8 (02:15 - 03:00)</option>
+					</select>
+				</div>
+				
 				<!-- Subject -->
-				<div>
-					<label for="subjectSelect" style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Subject</label>
-					<select id="subjectSelect" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box; outline: none; cursor: pointer;">
+				<div class="subject-select-wrapper">
+					<label for="subjectSelect">
+						<i class="fas fa-book" style="font-size: 11px;"></i>
+						Subject <span class="required">*</span>
+					</label>
+					<select id="subjectSelect">
 						<option value="">Select Subject</option>
 						<option value="Mathematics">📐 Mathematics</option>
 						<option value="Science">🔬 Science</option>
@@ -503,35 +899,167 @@
 						<option value="Physical Education">🏃 Physical Education</option>
 						<option value="Art">🎨 Art</option>
 						<option value="Music">🎵 Music</option>
-						<option value="Break">☕ Break</option>
-						<option value="Lunch">🍽️ Lunch Break</option>
 						<option value="Assembly">🏫 Assembly</option>
 					</select>
 				</div>
 				
 				<!-- Teacher -->
 				<div>
-					<label for="teacherInput" style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Teacher</label>
-					<input type="text" id="teacherInput" placeholder="e.g. Mr. Sharma, Mrs. Gupta" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box; outline: none;">
+					<label for="teacherInput">
+						<i class="fas fa-chalkboard-teacher" style="font-size: 11px;"></i>
+						Teacher
+					</label>
+					<input type="text" id="teacherInput" placeholder="e.g. Mr. Sharma, Mrs. Gupta">
 				</div>
 				
 				<!-- Room -->
 				<div>
-					<label for="roomInput" style="display: block; margin-bottom: 8px; color: #475569; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Room / Lab</label>
-					<input type="text" id="roomInput" placeholder="e.g. Room 101, Physics Lab, Ground" style="width: 100%; height: 48px; border: 2px solid #e2e8f0; border-radius: 12px; padding: 0 16px; font-size: 15px; background: #fff; box-sizing: border-box; outline: none;">
+					<label for="roomInput">
+						<i class="fas fa-door-open" style="font-size: 11px;"></i>
+						Room / Lab
+					</label>
+					<input type="text" id="roomInput" placeholder="e.g. Room 101, Physics Lab, Ground">
 				</div>
 			</div>
 			
 			<!-- Footer -->
-			<div style="display: flex; justify-content: flex-end; gap: 12px; padding: 20px 24px; background: #f8fafc; border-top: 1px solid #e2e8f0; border-radius: 0 0 16px 16px;">
-				<button id="deleteSlotBtn" style="display: none; min-width: 100px; height: 46px; padding: 0 16px; background: #fef2f2; border: none; border-radius: 10px; color: #ef4444; font-weight: 600; font-size: 14px; cursor: pointer; align-items: center; justify-content: center; gap: 8px; margin-right: auto;">
+			<div class="modal-footer">
+				<button id="deleteSlotBtn" class="btn btn-delete" style="display: none;">
 					<i class="fas fa-trash"></i> Remove
 				</button>
-				<button id="cancelBtn" style="min-width: 120px; height: 46px; padding: 0 20px; background: #fff; border: 2px solid #e2e8f0; border-radius: 10px; color: #64748b; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+				<button id="cancelBtn" class="btn btn-cancel">
 					<i class="fas fa-times"></i> Cancel
 				</button>
-				<button id="saveSlotBtn" style="min-width: 140px; height: 46px; padding: 0 24px; background: linear-gradient(180deg, #667eea, #764ba2); border: none; border-radius: 10px; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(102,126,234,0.4);">
+				<button id="saveSlotBtn" class="btn btn-save">
 					<i class="fas fa-check"></i> Save Period
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Subject Modal -->
+	<div class="add-subject-modal" id="addSubjectModal">
+		<div class="add-subject-content">
+			<div class="add-subject-header">
+				<h3>
+					<i class="fas fa-plus-circle"></i>
+					Add New Subject
+				</h3>
+				<button class="add-subject-close" id="closeAddSubject">
+					<i class="fas fa-times"></i>
+				</button>
+			</div>
+			<div class="add-subject-body">
+				<div>
+					<label for="newSubjectName">
+						<i class="fas fa-tag" style="font-size: 11px;"></i>
+						Subject Name <span class="required">*</span>
+					</label>
+					<input type="text" id="newSubjectName" placeholder="e.g. Economics, Psychology" style="width: 100%; height: 44px; border: 2px solid #e2e8f0; border-radius: 10px; padding: 0 14px; font-size: 14px; font-weight: 500; background: #ffffff; color: #1e293b; box-sizing: border-box; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: text; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+				</div>
+				
+				<div style="margin-top: 16px;">
+					<label>
+						<i class="fas fa-image" style="font-size: 11px;"></i>
+						Subject Icon
+					</label>
+					<div class="icon-selector" id="iconSelector">
+						<div class="icon-option" data-icon="📐" title="Mathematics">📐</div>
+						<div class="icon-option" data-icon="🔬" title="Science">🔬</div>
+						<div class="icon-option" data-icon="📚" title="English">📚</div>
+						<div class="icon-option" data-icon="📜" title="History">📜</div>
+						<div class="icon-option" data-icon="🌍" title="Geography">🌍</div>
+						<div class="icon-option" data-icon="⚛️" title="Physics">⚛️</div>
+						<div class="icon-option" data-icon="🧪" title="Chemistry">🧪</div>
+						<div class="icon-option" data-icon="🧬" title="Biology">🧬</div>
+						<div class="icon-option" data-icon="💻" title="Computer">💻</div>
+						<div class="icon-option" data-icon="🏃" title="Physical Education">🏃</div>
+						<div class="icon-option" data-icon="🎨" title="Art">🎨</div>
+						<div class="icon-option" data-icon="🎵" title="Music">🎵</div>
+						<div class="icon-option" data-icon="🏫" title="Assembly">🏫</div>
+						<div class="icon-option" data-icon="📊" title="Statistics">📊</div>
+						<div class="icon-option" data-icon="💰" title="Economics">💰</div>
+						<div class="icon-option" data-icon="🧠" title="Psychology">🧠</div>
+						<div class="icon-option" data-icon="🌐" title="Languages">🌐</div>
+						<div class="icon-option" data-icon="⚽" title="Sports">⚽</div>
+						<div class="icon-option" data-icon="📖" title="Literature">📖</div>
+						<div class="icon-option" data-icon="✏️" title="Writing">✏️</div>
+						<div class="icon-option" data-icon="🔤" title="Language Arts">🔤</div>
+						<div class="icon-option" data-icon="📝" title="Essay">📝</div>
+						<div class="icon-option" data-icon="🔢" title="Algebra">🔢</div>
+						<div class="icon-option" data-icon="📐" title="Geometry">📐</div>
+						<div class="icon-option" data-icon="🔭" title="Astronomy">🔭</div>
+						<div class="icon-option" data-icon="🌡️" title="Meteorology">🌡️</div>
+						<div class="icon-option" data-icon="🌋" title="Geology">🌋</div>
+						<div class="icon-option" data-icon="🌿" title="Botany">🌿</div>
+						<div class="icon-option" data-icon="🦁" title="Zoology">🦁</div>
+						<div class="icon-option" data-icon="🧮" title="Calculus">🧮</div>
+						<div class="icon-option" data-icon="📈" title="Business">📈</div>
+						<div class="icon-option" data-icon="🏛️" title="Civics">🏛️</div>
+						<div class="icon-option" data-icon="⚖️" title="Law">⚖️</div>
+						<div class="icon-option" data-icon="🏥" title="Health">🏥</div>
+						<div class="icon-option" data-icon="🔬" title="Research">🔬</div>
+						<div class="icon-option" data-icon="📱" title="Technology">📱</div>
+						<div class="icon-option" data-icon="🎭" title="Drama">🎭</div>
+						<div class="icon-option" data-icon="🎬" title="Film Studies">🎬</div>
+						<div class="icon-option" data-icon="📷" title="Photography">📷</div>
+						<div class="icon-option" data-icon="🖼️" title="Media Studies">🖼️</div>
+						<div class="icon-option" data-icon="🌏" title="World Studies">🌏</div>
+						<div class="icon-option" data-icon="🗺️" title="Cartography">🗺️</div>
+						<div class="icon-option" data-icon="🏺" title="Archaeology">🏺</div>
+						<div class="icon-option" data-icon="⏰" title="History">⏰</div>
+						<div class="icon-option" data-icon="🔍" title="Research Methods">🔍</div>
+						<div class="icon-option" data-icon="📋" title="Social Studies">📋</div>
+						<div class="icon-option" data-icon="🎯" title="Target">🎯</div>
+						<div class="icon-option" data-icon="🔬" title="Lab">🔬</div>
+						<div class="icon-option" data-icon="🧲" title="Magnetism">🧲</div>
+						<div class="icon-option" data-icon="⚡" title="Electricity">⚡</div>
+						<div class="icon-option" data-icon="🌊" title="Oceanography">🌊</div>
+						<div class="icon-option" data-icon="🌌" title="Space Science">🌌</div>
+						<div class="icon-option" data-icon="🔭" title="Telescope">🔭</div>
+						<div class="icon-option" data-icon="🧪" title="Experiment">🧪</div>
+						<div class="icon-option" data-icon="📚" title="Library">📚</div>
+						<div class="icon-option" data-icon="🎓" title="Education">🎓</div>
+						<div class="icon-option" data-icon="📖" title="Reading">📖</div>
+						<div class="icon-option" data-icon="✍️" title="Creative Writing">✍️</div>
+						<div class="icon-option" data-icon="🗣️" title="Speech">🗣️</div>
+						<div class="icon-option" data-icon="🎤" title="Public Speaking">🎤</div>
+						<div class="icon-option" data-icon="🎪" title="Theater">🎪</div>
+						<div class="icon-option" data-icon="🎹" title="Piano">🎹</div>
+						<div class="icon-option" data-icon="🥁" title="Drums">🥁</div>
+						<div class="icon-option" data-icon="🎸" title="Guitar">🎸</div>
+						<div class="icon-option" data-icon="🎨" title="Drawing">🎨</div>
+						<div class="icon-option" data-icon="🖌️" title="Painting">🖌️</div>
+						<div class="icon-option" data-icon="✂️" title="Crafts">✂️</div>
+						<div class="icon-option" data-icon="🏋️" title="Fitness">🏋️</div>
+						<div class="icon-option" data-icon="🤸" title="Gymnastics">🤸</div>
+						<div class="icon-option" data-icon="🏊" title="Swimming">🏊</div>
+						<div class="icon-option" data-icon="🏀" title="Basketball">🏀</div>
+						<div class="icon-option" data-icon="⚽" title="Football">⚽</div>
+						<div class="icon-option" data-icon="🎾" title="Tennis">🎾</div>
+						<div class="icon-option" data-icon="🏐" title="Volleyball">🏐</div>
+						<div class="icon-option" data-icon="🏸" title="Badminton">🏸</div>
+						<div class="icon-option" data-icon="♟️" title="Chess">♟️</div>
+						<div class="icon-option" data-icon="🧩" title="Puzzle">🧩</div>
+						<div class="icon-option" data-icon="🎲" title="Games">🎲</div>
+					</div>
+					<div class="icon-upload-area" id="iconUploadArea">
+						<div class="icon-preview" id="iconPreview">📚</div>
+						<div style="font-size: 12px; color: #64748b; font-weight: 500;">
+							Click to upload custom icon
+							<br>
+							<span style="font-size: 10px; color: #94a3b8;">or select from above</span>
+						</div>
+						<input type="file" id="iconFileInput" accept="image/*" style="display: none;">
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="padding: 16px 20px;">
+				<button id="cancelAddSubject" class="btn btn-cancel">
+					<i class="fas fa-times"></i> Cancel
+				</button>
+				<button id="saveNewSubject" class="btn btn-save">
+					<i class="fas fa-check"></i> Add Subject
 				</button>
 			</div>
 		</div>
@@ -572,6 +1100,13 @@
 		};
 
 		const STORAGE_KEY = 'edu_timetable';
+		const SUBJECTS_STORAGE_KEY = 'edu_custom_subjects';
+		
+		// Custom subjects management
+		let customSubjects = [];
+		let selectedIcon = '📚';
+		let selectedIconType = 'emoji'; // 'emoji' or 'image'
+		let selectedIconData = null;
 
 		// Demo Data
 		const DEMO_DATA = {
@@ -763,6 +1298,105 @@
 			}
 		};
 
+		// Load custom subjects
+		function loadCustomSubjects() {
+			try {
+				const data = localStorage.getItem(SUBJECTS_STORAGE_KEY);
+				if (data) {
+					customSubjects = JSON.parse(data);
+				}
+			} catch (e) {
+				customSubjects = [];
+			}
+		}
+		
+		function saveCustomSubjects() {
+			localStorage.setItem(SUBJECTS_STORAGE_KEY, JSON.stringify(customSubjects));
+		}
+		
+		function renderSubjectDropdown() {
+			const select = document.getElementById('subjectSelect');
+			const currentValue = select.value;
+			
+			// Default subjects list
+			const defaultSubjects = [
+				{ value: 'Mathematics', text: '📐 Mathematics' },
+				{ value: 'Science', text: '🔬 Science' },
+				{ value: 'English', text: '📚 English' },
+				{ value: 'History', text: '📜 History' },
+				{ value: 'Geography', text: '🌍 Geography' },
+				{ value: 'Physics', text: '⚛️ Physics' },
+				{ value: 'Chemistry', text: '🧪 Chemistry' },
+				{ value: 'Biology', text: '🧬 Biology' },
+				{ value: 'Computer Science', text: '💻 Computer Science' },
+				{ value: 'Physical Education', text: '🏃 Physical Education' },
+				{ value: 'Art', text: '🎨 Art' },
+				{ value: 'Music', text: '🎵 Music' },
+				{ value: 'Assembly', text: '🏫 Assembly' }
+			];
+			
+			// Clear and rebuild
+			select.innerHTML = '<option value="">Select Subject</option>';
+			
+			// Add default subjects
+			defaultSubjects.forEach(subject => {
+				const option = document.createElement('option');
+				option.value = subject.value;
+				option.textContent = subject.text;
+				select.appendChild(option);
+			});
+			
+			// Add custom subjects
+			customSubjects.forEach(subject => {
+				const option = document.createElement('option');
+				option.value = subject.name;
+				const icon = subject.iconType === 'image' 
+					? '🖼️'
+					: subject.icon;
+				option.textContent = `${icon} ${subject.name}`;
+				option.dataset.custom = 'true';
+				select.appendChild(option);
+			});
+			
+			// Add "Add Subject" option at the end
+			const addOption = document.createElement('option');
+			addOption.value = '__add_subject__';
+			addOption.textContent = '➕ Add New Subject';
+			addOption.dataset.addSubject = 'true';
+			select.appendChild(addOption);
+			
+			// Restore previous selection
+			if (currentValue && currentValue !== '__add_subject__') {
+				select.value = currentValue;
+			}
+		}
+		
+		// Subject dropdown change handler (set once)
+		let subjectDropdownHandlerAttached = false;
+		function setupSubjectDropdownHandler() {
+			const select = document.getElementById('subjectSelect');
+			if (!select) return;
+			
+			// Remove old listener if exists
+			if (subjectDropdownHandlerAttached) {
+				const newSelect = select.cloneNode(true);
+				select.parentNode.replaceChild(newSelect, select);
+			}
+			
+			// Add new listener
+			const newSelect = document.getElementById('subjectSelect');
+			if (newSelect) {
+				newSelect.addEventListener('change', function() {
+					if (this.value === '__add_subject__') {
+						// Reset to empty
+						this.value = '';
+						openAddSubjectModal();
+					}
+				});
+				subjectDropdownHandlerAttached = true;
+			}
+		}
+
 		// DOM Elements
 		const classSelect = document.getElementById('classSelect');
 		const sectionSelect = document.getElementById('sectionSelect');
@@ -779,6 +1413,17 @@
 		const addSlotBtn = document.getElementById('addSlotBtn');
 		const printBtn = document.getElementById('printBtn');
 		const exportBtn = document.getElementById('exportBtn');
+		
+		// Add Subject Modal Elements
+		const addSubjectModal = document.getElementById('addSubjectModal');
+		const closeAddSubject = document.getElementById('closeAddSubject');
+		const cancelAddSubject = document.getElementById('cancelAddSubject');
+		const saveNewSubject = document.getElementById('saveNewSubject');
+		const newSubjectName = document.getElementById('newSubjectName');
+		const iconSelector = document.getElementById('iconSelector');
+		const iconUploadArea = document.getElementById('iconUploadArea');
+		const iconFileInput = document.getElementById('iconFileInput');
+		const iconPreview = document.getElementById('iconPreview');
 
 		// Load/Save Data
 		function loadTimetableData() {
@@ -805,6 +1450,16 @@
 		}
 
 		// Render Functions
+		function getSubjectColorClass(subjectName) {
+			// Check if it's a custom subject
+			const customSubject = customSubjects.find(s => s.name === subjectName);
+			if (customSubject) {
+				// Use a default color for custom subjects or assign based on name hash
+				return 'subject-math'; // Default color, can be enhanced later
+			}
+			return SUBJECT_COLORS[subjectName] || 'subject-math';
+		}
+
 		function renderTimetable() {
 			const cls = classSelect.value;
 			const sec = sectionSelect.value;
@@ -856,7 +1511,7 @@
 					} else {
 						const slot = schedule[day] && schedule[day][period.num];
 						if (slot && slot.subject) {
-							const colorClass = SUBJECT_COLORS[slot.subject] || 'subject-math';
+							const colorClass = getSubjectColorClass(slot.subject);
 							html += `
 								<div class="cell cell-slot" data-day="${day}" data-period="${period.num}">
 									<div class="subject-card ${colorClass}">
@@ -903,24 +1558,50 @@
 		}
 
 		// Modal Functions
-		function openModal(day, period) {
+		function openModal(day = null, period = null) {
 			const cls = classSelect.value;
 			const sec = sectionSelect.value;
 			const key = `${cls}-${sec}`;
 			const data = loadTimetableData();
-			const slot = data[key]?.[day]?.[period];
+			
+			// Refresh subject dropdown when opening modal to include any new custom subjects
+			renderSubjectDropdown();
+			setupSubjectDropdownHandler();
+			
+			// If day and period are provided (clicked from grid), use them
+			if (day && period) {
+				const slot = data[key]?.[day]?.[period];
+				document.getElementById('editDay').value = day;
+				document.getElementById('editPeriod').value = period;
+				
+				// Hide day/period selectors when editing from grid
+				document.getElementById('daySelectContainer').style.display = 'none';
+				document.getElementById('periodSelectContainer').style.display = 'none';
+				document.getElementById('daySelect').value = day;
+				document.getElementById('periodSelect').value = period;
 
-			document.getElementById('editDay').value = day;
-			document.getElementById('editPeriod').value = period;
-
-			if (slot && slot.subject) {
-				modalTitle.textContent = 'Edit Period';
-				document.getElementById('subjectSelect').value = slot.subject;
-				document.getElementById('teacherInput').value = slot.teacher || '';
-				document.getElementById('roomInput').value = slot.room || '';
-				deleteSlotBtn.style.display = 'flex';
+				if (slot && slot.subject) {
+					modalTitle.textContent = 'Edit Period';
+					document.getElementById('subjectSelect').value = slot.subject;
+					document.getElementById('teacherInput').value = slot.teacher || '';
+					document.getElementById('roomInput').value = slot.room || '';
+					deleteSlotBtn.style.display = 'flex';
+				} else {
+					modalTitle.textContent = 'Add Period';
+					document.getElementById('subjectSelect').value = '';
+					document.getElementById('teacherInput').value = '';
+					document.getElementById('roomInput').value = '';
+					deleteSlotBtn.style.display = 'none';
+				}
 			} else {
+				// Opening from "Add Period" button - show day/period selectors
 				modalTitle.textContent = 'Add Period';
+				document.getElementById('editDay').value = '';
+				document.getElementById('editPeriod').value = '';
+				document.getElementById('daySelectContainer').style.display = 'block';
+				document.getElementById('periodSelectContainer').style.display = 'block';
+				document.getElementById('daySelect').value = '';
+				document.getElementById('periodSelect').value = '';
 				document.getElementById('subjectSelect').value = '';
 				document.getElementById('teacherInput').value = '';
 				document.getElementById('roomInput').value = '';
@@ -931,15 +1612,38 @@
 		}
 
 		function closeModalFn() {
+			// Add closing class for collapse animation
+			slotModal.classList.add('closing');
 			slotModal.classList.remove('show');
+			
+			// Remove closing class after animation completes
+			setTimeout(() => {
+				slotModal.classList.remove('closing');
+			}, 350);
 		}
 
 		function saveSlot() {
-			const day = document.getElementById('editDay').value;
-			const period = document.getElementById('editPeriod').value;
+			// Get day and period - either from hidden inputs (grid click) or from selectors (Add Period button)
+			let day = document.getElementById('editDay').value;
+			let period = document.getElementById('editPeriod').value;
+			
+			// If not set (opened from Add Period button), get from selectors
+			if (!day) day = document.getElementById('daySelect').value;
+			if (!period) period = document.getElementById('periodSelect').value;
+			
 			const subject = document.getElementById('subjectSelect').value;
 			const teacher = document.getElementById('teacherInput').value.trim();
 			const room = document.getElementById('roomInput').value.trim();
+
+			if (!day) {
+				notify('Please select a day', 'error');
+				return;
+			}
+			
+			if (!period) {
+				notify('Please select a period', 'error');
+				return;
+			}
 
 			if (!subject) {
 				notify('Please select a subject', 'error');
@@ -962,8 +1666,18 @@
 		}
 
 		function deleteSlot() {
-			const day = document.getElementById('editDay').value;
-			const period = document.getElementById('editPeriod').value;
+			let day = document.getElementById('editDay').value;
+			let period = document.getElementById('editPeriod').value;
+			
+			// If not set, get from selectors
+			if (!day) day = document.getElementById('daySelect').value;
+			if (!period) period = document.getElementById('periodSelect').value;
+			
+			if (!day || !period) {
+				notify('Invalid day or period', 'error');
+				return;
+			}
+			
 			const cls = classSelect.value;
 			const sec = sectionSelect.value;
 			const key = `${cls}-${sec}`;
@@ -1015,6 +1729,225 @@
 			a.click();
 		}
 
+		// Subject dropdown change handler is now in renderSubjectDropdown function
+		
+		// Icon selector - use event delegation
+		if (iconSelector) {
+			iconSelector.addEventListener('click', function(e) {
+				const iconOption = e.target.closest('.icon-option');
+				if (iconOption) {
+					// Remove previous selection
+					iconSelector.querySelectorAll('.icon-option').forEach(opt => {
+						opt.classList.remove('selected');
+					});
+					
+					// Select clicked icon
+					iconOption.classList.add('selected');
+					selectedIcon = iconOption.dataset.icon;
+					selectedIconType = 'emoji';
+					selectedIconData = null;
+					
+					// Update preview
+					iconPreview.innerHTML = selectedIcon;
+					iconPreview.style.fontSize = '32px';
+					iconPreview.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+					iconPreview.style.color = 'white';
+					iconUploadArea.classList.remove('has-icon');
+					if (iconFileInput) iconFileInput.value = '';
+				}
+			});
+		}
+		
+		// Icon upload
+		if (iconUploadArea) {
+			iconUploadArea.addEventListener('click', function() {
+				if (iconFileInput) {
+					iconFileInput.click();
+				}
+			});
+		}
+		
+		if (iconFileInput) {
+			iconFileInput.addEventListener('change', function(e) {
+				const file = e.target.files[0];
+				if (file && file.type.startsWith('image/')) {
+					// Validate file size (max 2MB)
+					if (file.size > 2 * 1024 * 1024) {
+						notify('Image size should be less than 2MB', 'error');
+						return;
+					}
+					
+					const reader = new FileReader();
+					reader.onload = function(event) {
+						selectedIconData = event.target.result;
+						selectedIconType = 'image';
+						selectedIcon = null;
+						
+						// Update preview
+						iconPreview.innerHTML = `<img src="${selectedIconData}" alt="Custom Icon" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">`;
+						iconPreview.style.fontSize = 'auto';
+						iconPreview.style.background = 'transparent';
+						iconPreview.style.color = 'transparent';
+						iconUploadArea.classList.add('has-icon');
+						
+						// Deselect emoji icons
+						if (iconSelector) {
+							iconSelector.querySelectorAll('.icon-option').forEach(opt => {
+								opt.classList.remove('selected');
+							});
+						}
+					};
+					reader.onerror = function() {
+						notify('Error reading image file', 'error');
+					};
+					reader.readAsDataURL(file);
+				} else {
+					notify('Please select a valid image file', 'error');
+					this.value = '';
+				}
+			});
+		}
+		
+		// Add Subject Modal Functions
+		function openAddSubjectModal() {
+			if (!addSubjectModal || !newSubjectName) return;
+			
+			// Reset form
+			newSubjectName.value = '';
+			selectedIcon = '📚';
+			selectedIconType = 'emoji';
+			selectedIconData = null;
+			
+			// Reset icon preview
+			if (iconPreview) {
+				iconPreview.innerHTML = selectedIcon;
+				iconPreview.style.fontSize = '32px';
+				iconPreview.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+				iconPreview.style.color = 'white';
+			}
+			
+			if (iconUploadArea) {
+				iconUploadArea.classList.remove('has-icon');
+			}
+			
+			if (iconSelector) {
+				iconSelector.querySelectorAll('.icon-option').forEach(opt => {
+					opt.classList.remove('selected');
+				});
+			}
+			
+			if (iconFileInput) {
+				iconFileInput.value = '';
+			}
+			
+			// Show modal
+			addSubjectModal.classList.add('show');
+			setTimeout(() => {
+				if (newSubjectName) newSubjectName.focus();
+			}, 100);
+		}
+		
+		function closeAddSubjectModal() {
+			if (!addSubjectModal) return;
+			addSubjectModal.classList.add('closing');
+			addSubjectModal.classList.remove('show');
+			setTimeout(() => {
+				addSubjectModal.classList.remove('closing');
+			}, 300);
+		}
+		
+		function saveNewSubjectFn() {
+			if (!newSubjectName) return;
+			
+			const name = newSubjectName.value.trim();
+			
+			if (!name) {
+				notify('Please enter a subject name', 'error');
+				if (newSubjectName) newSubjectName.focus();
+				return;
+			}
+			
+			// Validate icon selection
+			if (selectedIconType === 'emoji' && !selectedIcon) {
+				selectedIcon = '📚'; // Default icon
+			}
+			if (selectedIconType === 'image' && !selectedIconData) {
+				notify('Please select or upload an icon', 'error');
+				return;
+			}
+			
+			// Check if subject already exists (check both default and custom)
+			const subjectSelect = document.getElementById('subjectSelect');
+			if (!subjectSelect) return;
+			
+			const allSubjects = Array.from(subjectSelect.options)
+				.map(opt => opt.value)
+				.filter(v => v && v !== '__add_subject__' && v !== '');
+			
+			if (allSubjects.includes(name)) {
+				notify('This subject already exists', 'error');
+				if (newSubjectName) newSubjectName.focus();
+				return;
+			}
+			
+			// Create new subject object
+			const newSubject = {
+				name: name,
+				icon: selectedIconType === 'emoji' ? selectedIcon : selectedIconData,
+				iconType: selectedIconType,
+				createdAt: new Date().toISOString()
+			};
+			
+			// Add to custom subjects
+			customSubjects.push(newSubject);
+			saveCustomSubjects();
+			
+			// Update dropdown
+			renderSubjectDropdown();
+			setupSubjectDropdownHandler();
+			
+			// Auto-select the new subject
+			const updatedSelect = document.getElementById('subjectSelect');
+			if (updatedSelect) {
+				updatedSelect.value = name;
+			}
+			
+			// Close modal
+			closeAddSubjectModal();
+			
+			notify(`Subject "${name}" added successfully!`, 'success');
+		}
+		
+		// Add Subject Modal Event Listeners
+		if (closeAddSubject) {
+			closeAddSubject.addEventListener('click', closeAddSubjectModal);
+		}
+		if (cancelAddSubject) {
+			cancelAddSubject.addEventListener('click', closeAddSubjectModal);
+		}
+		if (saveNewSubject) {
+			saveNewSubject.addEventListener('click', saveNewSubjectFn);
+		}
+		if (newSubjectName) {
+			newSubjectName.addEventListener('keypress', (e) => {
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					saveNewSubjectFn();
+				}
+			});
+		}
+		window.addEventListener('click', (e) => {
+			if (e.target === addSubjectModal) {
+				closeAddSubjectModal();
+			}
+		});
+		// Close on Escape key
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && addSubjectModal && addSubjectModal.classList.contains('show')) {
+				closeAddSubjectModal();
+			}
+		});
+
 		// Event Listeners
 		classSelect.addEventListener('change', renderTimetable);
 		sectionSelect.addEventListener('change', renderTimetable);
@@ -1025,14 +1958,19 @@
 		printBtn.addEventListener('click', () => window.print());
 		exportBtn.addEventListener('click', exportTimetable);
 		addSlotBtn.addEventListener('click', () => {
-			notify('Click on any empty cell in the timetable to add a period', 'info');
+			openModal(); // Open modal without day/period - user will select from dropdowns
 		});
 		window.addEventListener('click', (e) => {
 			if (e.target === slotModal) closeModalFn();
 		});
 
 		// Initialize
-		document.addEventListener('DOMContentLoaded', renderTimetable);
+		document.addEventListener('DOMContentLoaded', () => {
+			loadCustomSubjects();
+			renderSubjectDropdown();
+			setupSubjectDropdownHandler();
+			renderTimetable();
+		});
 	</script>
 </body>
 </html>
